@@ -20,3 +20,6 @@ obj-$(CONFIG_ARCH_MDM9607)	+= clock-gcc-9607.o
 # ACPU clock
 obj-$(CONFIG_ARCH_MDM9607)	+= clock-a7.o
 endif
+
+obj-y               += mdss/
+
