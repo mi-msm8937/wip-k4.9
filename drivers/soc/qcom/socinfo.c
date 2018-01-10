@@ -457,6 +457,10 @@ static struct msm_soc_info cpu_of_id[] = {
 	/* TRINKETP-IOT IDs*/
 	[468] = {MSM_CPU_TRINKETP_IOT, "TRINKETP-IOT"},
 
+	/*MSM8937 ID  */
+	[294] = {MSM_CPU_8937, "MSM8937"},
+	[295] = {MSM_CPU_8937, "APQ8937"},
+
 	/* Uninitialized IDs are not known to run Linux.
 	 * MSM_CPU_UNKNOWN is set to 0 to ensure these IDs are
 	 * considered as unknown CPU.
@@ -1477,6 +1481,10 @@ static void * __init setup_dummy_socinfo(void)
 		dummy_socinfo.id = 468;
 		strlcpy(dummy_socinfo.build_id, "trinketp-iot - ",
 		sizeof(dummy_socinfo.build_id));
+	} else if (early_machine_is_msm8937()) {
+		dummy_socinfo.id = 294;
+		strlcpy(dummy_socinfo.build_id, "msm8937 - ",
+			sizeof(dummy_socinfo.build_id));
 	} else
 		strlcat(dummy_socinfo.build_id, "Dummy socinfo",
 			sizeof(dummy_socinfo.build_id));
