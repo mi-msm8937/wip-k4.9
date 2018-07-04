@@ -20,6 +20,7 @@
 #include <linux/qcom_scm.h>
 
 #include <asm/smp_plat.h>
+#include <soc/qcom/scm-boot.h>
 
 
 #define VDD_SC1_ARRAY_CLAMP_GFS_CTL	0x35a0
@@ -319,10 +320,19 @@ static int kpssv2_boot_secondary(unsigned int cpu, struct task_struct *idle)
 
 static void __init qcom_smp_prepare_cpus(unsigned int max_cpus)
 {
-	int cpu;
+	int cpu, map;
+	u32 aff0_mask = 0;
+	u32 aff1_mask = 0;
+	u32 aff2_mask = 0;
 
-	if (qcom_scm_set_cold_boot_addr(secondary_startup_arm,
-					cpu_present_mask)) {
+	for_each_present_cpu(cpu) {
+		map = cpu_logical_map(cpu);
+		aff0_mask |= BIT(MPIDR_AFFINITY_LEVEL(map, 0));
+		aff1_mask |= BIT(MPIDR_AFFINITY_LEVEL(map, 1));
+		aff2_mask |= BIT(MPIDR_AFFINITY_LEVEL(map, 2));
+	}
+	if (scm_set_boot_addr_mc(virt_to_phys(secondary_startup_arm),
+		aff0_mask, aff1_mask, aff2_mask, SCM_FLAG_COLDBOOT_MC)) {
 		for_each_present_cpu(cpu) {
 			if (cpu == smp_processor_id())
 				continue;
