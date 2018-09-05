@@ -9,3 +9,4 @@ obj-$(CONFIG_ARCH_MDM9607) += board-mdm9607.o
 obj-$(CONFIG_ARCH_SDM660) += board-660.o
 obj-$(CONFIG_ARCH_MSM8937) += board-msm8937.o
 obj-$(CONFIG_ARCH_MSM8917) += board-msm8917.o
+obj-$(CONFIG_ARCH_MSM8940) += board-msm8940.o
