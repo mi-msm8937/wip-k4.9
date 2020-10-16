@@ -39,6 +39,11 @@
 #include <linux/mmc/sd.h>
 #include <linux/mmc/slot-gpio.h>
 
+#ifdef CONFIG_MACH_XIAOMI
+#include <linux/xiaomi_device.h>
+extern int xiaomi_device_read(void);
+#endif
+
 #define CREATE_TRACE_POINTS
 #include <trace/events/mmc.h>
 
@@ -2568,6 +2573,8 @@ void mmc_gate_clock(struct mmc_host *host)
  */
 void mmc_ungate_clock(struct mmc_host *host)
 {
+	struct mmc_card *card = host->card;
+
 	/*
 	 * We should previously have gated the clock, so the clock shall
 	 * be 0 here! The clock may however be 0 during initialization,
@@ -2585,6 +2592,10 @@ void mmc_ungate_clock(struct mmc_host *host)
 		 * To workaround this issue, we are triggering retuning of the
 		 * tuning circuit after ungating the controller clocks.
 		 */
+#ifdef CONFIG_MACH_XIAOMI_LAND
+	if (xiaomi_device_read() == XIAOMI_DEVICE_LAND)
+		if (card->cid.manfid != CID_MANFID_HYNIX)
+#endif
 		mmc_retune_needed(host);
 	}
 }
