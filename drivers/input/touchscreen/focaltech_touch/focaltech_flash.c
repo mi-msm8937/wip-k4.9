@@ -44,23 +44,14 @@ struct ft_chip_t chip_types;
  * Global variable or extern global variabls/functions
  *****************************************************************************/
 /* Upgrade FW/PRAMBOOT/LCD CFG */
-#if (FTS_GET_VENDOR_ID_NUM >= 1)
 u8 CTPM_FW[] = {
-#include FTS_UPGRADE_FW_APP
 };
-#endif
 
-#if (FTS_GET_VENDOR_ID_NUM >= 2)
 u8 CTPM_FW2[] = {
-#include FTS_UPGRADE_FW2_APP
 };
-#endif
 
-#if (FTS_GET_VENDOR_ID_NUM >= 3)
 u8 CTPM_FW3[] = {
-#include FTS_UPGRADE_FW3_APP
 };
-#endif
 
 u8 aucFW_PRAM_BOOT[] = {
 #ifdef FTS_UPGRADE_PRAMBOOT
