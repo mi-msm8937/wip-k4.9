@@ -355,6 +355,11 @@ static int fts_ft5x46_upgrade_use_buf(struct i2c_client *client,
 	u8 upgrade_ecc;
 	int i_ret;
 
+#if 1
+	pr_err("[UPGRADE] Disabled.");
+	return 0;
+#endif
+
 	fts_ctpm_i2c_hid2std(client);
 
 	for (i = 0; i < FTS_UPGRADE_LOOP; i++) {
