@@ -285,10 +285,10 @@ static int fts_power_source_init(struct fts_ts_data *data)
 		}
 	}
 
-	data->vcc_i2c = regulator_get(&data->client->dev, "vcc-i2c");
+	data->vcc_i2c = regulator_get(&data->client->dev, "vcc_i2c");
 	if (IS_ERR(data->vcc_i2c)) {
 		rc = PTR_ERR(data->vcc_i2c);
-		FTS_ERROR("Regulator get failed vcc-i2c rc=%d", rc);
+		FTS_ERROR("Regulator get failed vcc_i2c rc=%d", rc);
 		goto reg_vdd_set_vtg;
 	}
 
@@ -296,7 +296,7 @@ static int fts_power_source_init(struct fts_ts_data *data)
 		rc = regulator_set_voltage(data->vcc_i2c, FTS_I2C_VTG_MIN_UV,
 				FTS_I2C_VTG_MAX_UV);
 		if (rc) {
-			FTS_ERROR("Regulator set_vtg failed vcc-i2c rc=%d",
+			FTS_ERROR("Regulator set_vtg failed vcc_i2c rc=%d",
 					rc);
 			goto reg_vcc_i2c_put;
 		}
