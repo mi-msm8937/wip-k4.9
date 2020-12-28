@@ -1,0 +1,12 @@
+/* FROM: S88536AA2.dtsi */
+&soc {
+	led_flash0: qcom,camera-flash {
+		qcom,flash-source = <&pmi8950_flash0>;
+		qcom,torch-source = <&pmi8950_torch0 &pmi8950_torch2>;
+	};
+};
+
+/* FROM: S88536AA2.dts */
+&usb_otg {
+	qcom,usbin-vadc = <&pmi8950_vadc>;
+};

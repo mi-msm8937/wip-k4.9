@@ -1,0 +1,11 @@
+/* FROM: santoni-n-oss msm8937.dtsi */
+&soc {
+	qcom,msm-thermal {
+		/delete-property/ qcom,therm-reset-temp;
+	};
+};
+
+/* FROM: santoni-n-oss msm8940.dtsi */
+&apc_vreg_corner {
+	/delete-property/ qcom,cpr-enable;
+};

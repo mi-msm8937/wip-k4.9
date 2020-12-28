@@ -1,0 +1,4 @@
+/* FROM: santoni-n-oss msm8937-qrd.dtsi */
+&sdhc_1 {
+	qcom,vdd-always-on;
+};

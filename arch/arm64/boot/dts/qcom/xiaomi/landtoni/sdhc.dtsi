@@ -1,0 +1,12 @@
+/* FROM: S88536AA2.dtsi */
+&sdc2_cmd_on {
+	config {
+		drive-strength = <12>;
+	};
+};
+
+&sdc2_data_on {
+	config {
+		drive-strength = <12>;
+	};
+};

@@ -1,0 +1,13 @@
+/* FROM: wt88537_64.dtsi */
+&soc {
+	led_flash0: qcom,camera-flash {
+		qcom,flash-source = <&pmi8950_flash0 &pmi8950_flash1>;
+		qcom,torch-source = <&pmi8950_torch0 &pmi8950_torch1 &pmi8950_torch2>;
+	};
+};
+
+/* FROM: land-m-oss msm8937.dtsi */
+&usb_otg {
+	qcom,hsusb-otg-phy-init-seq =
+		 <0x53 0x80 0x32 0x81 0x07 0x82 0x13 0x83 0xffffffff>;
+};

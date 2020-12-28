@@ -1,0 +1,50 @@
+/* FROM: santoni-n-oss msm-pm8937.dtsi */
+&spmi_bus {
+	qcom,pm8937@0 {
+		qcom,power-on@800 {
+			qcom,pon_1 {
+				qcom,support-reset = <1>;
+				qcom,s2-timer = <2000>;
+				qcom,s2-type = <7>;
+			};
+		};
+	};
+};
+
+/* FROM: santoni-n-oss msm-pmi8950.dtsi */
+&qpnp_smbcharger {
+	/delete-property/ qcom,autoadjust-vfloat;
+};
+
+&pmi8950_torch0 {
+	qcom,current = <100>;
+};
+
+&pmi8950_torch1 {
+	qcom,current = <100>;
+};
+
+&flash_led {
+	pmi8950_torch2: qcom,torch_2 {
+		label = "torch";
+		qcom,led-name = "flashlight";
+		qcom,default-led-trigger =
+				"torch2_trigger";
+		qcom,max-current = <200>;
+		qcom,id = <1>;
+		qcom,current = <100>;
+	};
+};
+
+&pmi_haptic {
+	qcom,vmax-mv = <2700>;
+};
+
+/* FROM: santoni-n-oss msm8937-regulator.dtsi */
+&pm8937_l6 {
+	regulator-always-on;
+};
+
+&apc_vreg_corner {
+	qcom,cpr-voltage-floor =   <1150000 1150000 1250000>;
+};

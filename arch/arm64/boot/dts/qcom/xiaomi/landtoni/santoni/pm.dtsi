@@ -1,0 +1,30 @@
+/* FROM: msm-pm8937.dtsi */
+&spmi_bus {
+	qcom,pm8937@0 {
+		qcom,power-on@800 {
+			qcom,pon_1 {
+				qcom,s1-timer = <4480>;
+			};
+		};
+	};
+};
+
+/* FROM: msm-pmi8950.dtsi */
+&wled {
+	qcom,en-cabc;
+};
+
+&pmi_haptic {
+	/delete-property/ qcom,en-brake;
+};
+
+/* FROM: S88536AA2.dtsi */
+&flash_led {
+	/delete-node/ qcom,flash_1;
+	/delete-node/ qcom,torch_1;
+};
+
+/* FROM: santoni-n-oss msm8937-regulator.dtsi */
+&pm8937_s5 {
+	qcom,mode = "pwm";
+};

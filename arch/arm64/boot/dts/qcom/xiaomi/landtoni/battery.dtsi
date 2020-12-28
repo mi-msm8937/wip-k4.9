@@ -1,0 +1,18 @@
+/* FROM: dts */
+&qpnp_smbcharger {
+	qcom,float-voltage-mv = <4400>;
+	status = "okay";
+};
+
+&qpnp_fg {
+	qcom,cold-bat-decidegc = <(0)>;
+	qcom,warm-bat-decidegc = <450>;
+	qcom,warm-bat-india-decidegc = <500>;
+	qcom,resume-soc = <99>;
+	qcom,fg-cc-cv-threshold-mv = <4390>;
+	qcom,cl-max-increment-deciperc = <1>;
+	qcom,cl-max-decrement-deciperc = <1>;
+	qcom,fg-delta-soc = <1>;
+	qcom,bad-battery-detection-enable;
+	qcom,hold-soc-while-full;
+};

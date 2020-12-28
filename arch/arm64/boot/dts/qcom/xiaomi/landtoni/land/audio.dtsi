@@ -1,0 +1,4 @@
+/* FROM: land-m-oss wt88537_64.dts */
+&int_codec {
+	qcom,model = "msm8952-sku1-snd-card";
+};

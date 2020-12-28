@@ -1,0 +1,34 @@
+/* FROM: santoni-n-oss msm8937-qrd.dtsi */
+&soc {
+	boardinfo {
+		compatible = "wt:boardinfo";
+	};
+};
+
+/* FROM: land-m-oss msm8937.dtsi */
+&i2c_3 {
+	qcom,clk-freq-out = <100000>;
+};
+
+&soc {
+	sn_fuse: snfuse@0xa0128 {
+		compatible = "qcom,sn-fuse";
+		reg = <0xa0128 0x4>;
+		reg-names = "sn-base";
+	};
+
+	sec_boot_fuse: secbootfuse@0xa41d0 {
+		compatible = "qcom,sec-boot-fuse";
+		reg = <0xa41d0 0x4>;
+		reg-names = "sec-boot-base";
+	};
+};
+
+/* FROM: santoni-n-oss S88536AA2.dts */
+&i2c_2 {
+	status = "okay";
+
+	pericom-type-c@1d {
+		status="disabled";
+	};
+};

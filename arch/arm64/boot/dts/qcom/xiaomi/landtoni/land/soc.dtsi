@@ -1,0 +1,4 @@
+/* FROM: land-m-oss msm8937.dtsi */
+&i2c_3 {
+	status = "okay";
+};

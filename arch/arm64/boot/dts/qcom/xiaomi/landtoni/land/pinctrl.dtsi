@@ -1,0 +1,6 @@
+/* FROM: land-m-oss msm8937-pinctrl.dtsi */
+&sdc2_cd_off {
+	config {
+		bias-pull-up;
+	};
+};
