@@ -19,6 +19,8 @@
 #include "msm8937-mdss-panels.dtsi"
 #include "msm8940-pinctrl.dtsi"
 
+#include "xiaomi/landtoni/qcom/msm8937-qrd.dtsi"
+
 #include "xiaomi/xiaomi.dtsi"
 #include "xiaomi/landtoni/landtoni.dtsi"
 #include "xiaomi/landtoni/santoni/santoni.dtsi"

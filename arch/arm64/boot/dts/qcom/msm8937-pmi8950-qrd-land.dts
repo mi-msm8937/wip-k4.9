@@ -17,6 +17,8 @@
 #include "msm8940-pmi8950.dtsi"
 #include "msm8937-mdss-panels.dtsi"
 
+#include "xiaomi/landtoni/qcom/msm8937-qrd.dtsi"
+
 #include "xiaomi/xiaomi.dtsi"
 #include "xiaomi/landtoni/landtoni.dtsi"
 #include "xiaomi/landtoni/land/land.dtsi"
