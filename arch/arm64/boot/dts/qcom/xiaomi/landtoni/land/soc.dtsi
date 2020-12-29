@@ -2,3 +2,16 @@
 &i2c_3 {
 	status = "okay";
 };
+
+/ {
+	reserved-memory {
+		pstore_reserve_mem_region@0 {
+			compatible = "removed-dma-pool";
+			no-map;
+			reg = < 0x00 0x9ff00000 0x00 0x300000 >;
+		};
+		splash_region@83000000 {
+			reg = < 0x00 0x8dd00000 0x00 0x1400000 >;
+		};
+	};
+};
