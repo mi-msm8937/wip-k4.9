@@ -33,6 +33,7 @@
  * 1.Included header files
  *****************************************************************************/
 #include "focaltech_core.h"
+#include <linux/sysctl.h>
 #if FTS_GESTURE_EN
 /******************************************************************************
  * Private constant and macro definitions using #define
@@ -139,6 +140,10 @@ static struct attribute_group fts_gesture_group = {
 
 	.attrs = fts_gesture_mode_attrs,
 };
+
+static int sysctl_dt2w_min_val = 0;
+static int sysctl_dt2w_max_val = 1;
+static struct ctl_table_header *dt2w_sysctl_header;
 
 /************************************************************************
  * Name: fts_gesture_show
@@ -583,6 +588,28 @@ int fts_gesture_resume(struct i2c_client *client)
 	return 0;
 }
 
+static struct ctl_table dt2w_child_table[] = {
+    {
+        .procname       = "dt2w",
+        .maxlen         = sizeof(int),
+        .mode           = 0666,
+        .data           = &fts_gesture_data.mode,
+        .proc_handler   = &proc_dointvec_minmax,
+        .extra1         = &sysctl_dt2w_min_val,
+        .extra2         = &sysctl_dt2w_max_val,
+    },
+    {}
+};
+
+static struct ctl_table dt2w_parent_table[] = {
+    {
+        .procname       = "dev",
+        .mode           = 0555,
+        .child          = dt2w_child_table,
+    },
+    {}
+};
+
 /*****************************************************************************
  *   Name: fts_gesture_init
  *  Brief:
@@ -624,6 +651,11 @@ int fts_gesture_init(struct input_dev *input_dev, struct i2c_client *client)
 	__set_bit(KEY_GESTURE_C, input_dev->keybit);
 	__set_bit(KEY_GESTURE_Z, input_dev->keybit);
 
+	/* DT2W sysctl */
+	dt2w_sysctl_header = register_sysctl_table(dt2w_parent_table);
+	if (!dt2w_sysctl_header)
+		pr_err("Error: Failed to register dt2w_sysctl_header\n");
+
 	fts_create_gesture_sysfs(client);
 	fts_gesture_data.mode = 1;
 	fts_gesture_data.active = 0;
@@ -642,6 +674,10 @@ int fts_gesture_init(struct input_dev *input_dev, struct i2c_client *client)
 int fts_gesture_exit(struct i2c_client *client)
 {
 	FTS_FUNC_ENTER();
+	/* DT2W sysctl */
+	if (dt2w_sysctl_header)
+		unregister_sysctl_table(dt2w_sysctl_header);
+
 	sysfs_remove_group(&client->dev.kobj, &fts_gesture_group);
 	FTS_FUNC_EXIT();
 
