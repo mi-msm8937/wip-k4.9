@@ -1,0 +1,4 @@
+[submodule "drivers/staging/prima"]
+	path = drivers/staging/prima
+	url = https://github.com/KudProject/vendor_qcom_opensource_wlan_prima
+	branch = heads/LA.UM.9.6.2
