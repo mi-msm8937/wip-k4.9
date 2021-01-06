@@ -91,7 +91,6 @@ struct fts_gesture_st {
 	u8 header[FTS_GESTRUE_POINTS_HEADER];
 	u16 coordinate_x[FTS_GESTRUE_POINTS];
 	u16 coordinate_y[FTS_GESTRUE_POINTS];
-	u8 mode;
 	u8 active;
 };
 
@@ -145,6 +144,8 @@ static int sysctl_dt2w_min_val = 0;
 static int sysctl_dt2w_max_val = 1;
 static struct ctl_table_header *dt2w_sysctl_header;
 
+static int fts_gesture_enable = ENABLE;
+
 /************************************************************************
  * Name: fts_gesture_show
  *  Brief:
@@ -162,7 +163,7 @@ static ssize_t fts_gesture_show(struct device *dev,
 	mutex_lock(&fts_input_dev->mutex);
 	fts_i2c_read_reg(client, FTS_REG_GESTURE_EN, &val);
 	count = snprintf(buf, PAGE_SIZE, "Gesture Mode: %s\n",
-			fts_gesture_data.mode ? "On" : "Off");
+			fts_gesture_enable ? "On" : "Off");
 	count += snprintf(buf + count, PAGE_SIZE - count,
 				"Reg(0xD0) = %d\n", val);
 	mutex_unlock(&fts_input_dev->mutex);
@@ -184,10 +185,10 @@ static ssize_t fts_gesture_store(struct device *dev,
 
 	if (FTS_SYSFS_ECHO_ON(buf)) {
 		FTS_INFO("[GESTURE]enable gesture");
-		fts_gesture_data.mode = ENABLE;
+		fts_gesture_enable = ENABLE;
 	} else if (FTS_SYSFS_ECHO_OFF(buf)) {
 		FTS_INFO("[GESTURE]disable gesture");
-		fts_gesture_data.mode = DISABLE;
+		fts_gesture_enable = DISABLE;
 	}
 
 	mutex_unlock(&fts_input_dev->mutex);
@@ -486,7 +487,7 @@ int fts_gesture_readdata(struct i2c_client *client)
  *****************************************************************************/
 void fts_gesture_recovery(struct i2c_client *client)
 {
-	if (fts_gesture_data.mode && fts_gesture_data.active) {
+	if (fts_gesture_enable && fts_gesture_data.active) {
 		fts_i2c_write_reg(client, 0xD1, 0xff);
 		fts_i2c_write_reg(client, 0xD2, 0xff);
 		fts_i2c_write_reg(client, 0xD5, 0xff);
@@ -512,7 +513,7 @@ int fts_gesture_suspend(struct i2c_client *i2c_client)
 	FTS_FUNC_ENTER();
 
 	/* gesture not enable, return immediately */
-	if (fts_gesture_data.mode == 0) {
+	if (fts_gesture_enable == 0) {
 		FTS_DEBUG("gesture is disabled");
 		FTS_FUNC_EXIT();
 		return -EINVAL;
@@ -559,7 +560,7 @@ int fts_gesture_resume(struct i2c_client *client)
 	FTS_FUNC_ENTER();
 
 	/* gesture not enable, return immediately */
-	if (fts_gesture_data.mode == 0) {
+	if (fts_gesture_enable == 0) {
 		FTS_DEBUG("gesture is disabled");
 		FTS_FUNC_EXIT();
 		return -EINVAL;
@@ -593,7 +594,7 @@ static struct ctl_table dt2w_child_table[] = {
         .procname       = "dt2w",
         .maxlen         = sizeof(int),
         .mode           = 0666,
-        .data           = &fts_gesture_data.mode,
+        .data           = &fts_gesture_enable,
         .proc_handler   = &proc_dointvec_minmax,
         .extra1         = &sysctl_dt2w_min_val,
         .extra2         = &sysctl_dt2w_max_val,
@@ -657,7 +658,7 @@ int fts_gesture_init(struct input_dev *input_dev, struct i2c_client *client)
 		pr_err("Error: Failed to register dt2w_sysctl_header\n");
 
 	fts_create_gesture_sysfs(client);
-	fts_gesture_data.mode = 1;
+	fts_gesture_enable = 1;
 	fts_gesture_data.active = 0;
 	FTS_FUNC_EXIT();
 
