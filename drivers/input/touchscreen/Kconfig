@@ -1452,6 +1452,17 @@ config TOUCHSCREEN_RAYDIUM_CHIPSET
 
 	  If unsure, say N.
 
+config TOUCHSCREEN_IST3038C
+	tristate "imagies touchscreens"
+	depends on I2C
+	help
+	  Say Y here if you have a ist3038c touchscreen.
+	  Ft5x06 controllers are multi touch controllers which can
+	  report 5 touches at a time.
+	  If unsure, say N.
+	  To compile this driver as a module, choose M here: the
+	  module will be called ist3038c_ts.
+
 config TOUCHSCREEN_IST30XX
 	tristate "IMAGES touchpanel IST30XX series"
 	depends on I2C
