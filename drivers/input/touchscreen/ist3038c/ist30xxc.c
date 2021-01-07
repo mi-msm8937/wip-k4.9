@@ -48,6 +48,10 @@
 #include <linux/fb.h>
 #endif
 
+#if defined(IST30XX_GESTURE)
+#include <linux/sysctl.h>
+#endif
+
 /*
 #include <linux/hqsysfs.h>
 */
@@ -77,6 +81,12 @@ int ist30xx_key_x[] = KEY_COORD_X;
 struct ist30xx_data *ts_data;
 /* extern int set_usb_charge_mode_par; */
 int ist30xx_log_level = IST30XX_LOG_LEVEL;
+
+#if defined(IST30XX_GESTURE)
+static int sysctl_dt2w_min_val = 0;
+static int sysctl_dt2w_max_val = 1;
+static struct ctl_table_header *dt2w_sysctl_header;
+#endif
 
 void tsp_printk(int level, const char *fmt, ...)
 {
@@ -1879,6 +1889,30 @@ static int fb_notifier_callback(struct notifier_block *self,
 
 static char tp_info_summary[80] = "";
 
+#if defined(IST30XX_GESTURE)
+static struct ctl_table dt2w_child_table[] = {
+    {
+        .procname       = "dt2w",
+        .maxlen         = sizeof(int),
+        .mode           = 0666,
+        .data           = &ist30xx_gesture_func_on,
+        .proc_handler   = &proc_dointvec_minmax,
+        .extra1         = &sysctl_dt2w_min_val,
+        .extra2         = &sysctl_dt2w_max_val,
+    },
+    {}
+};
+
+static struct ctl_table dt2w_parent_table[] = {
+    {
+        .procname       = "dev",
+        .mode           = 0555,
+        .child          = dt2w_child_table,
+    },
+    {}
+};
+#endif
+
 #ifdef CONFIG_MACH_XIAOMI
 extern bool xiaomi_ts_probed;
 #endif
@@ -2162,6 +2196,14 @@ static int ist30xx_probe(struct i2c_client *client,
 /*
 	hq_regiser_hw_info(HWID_CTP, tp_info_summary);
 */
+
+#if defined(IST30XX_GESTURE)
+	/* DT2W sysctl */
+	dt2w_sysctl_header = register_sysctl_table(dt2w_parent_table);
+	if (!dt2w_sysctl_header)
+		pr_err("Error: Failed to register dt2w_sysctl_header\n");
+#endif
+
 	tsp_info("### IMAGIS probe success ###\n");
 
 #ifdef CONFIG_MACH_XIAOMI
@@ -2246,6 +2288,12 @@ static int ist30xx_remove(struct i2c_client *client)
 	input_unregister_device(data->input_dev);
 	input_free_device(data->input_dev);
 	kfree(data);
+
+#if defined(IST30XX_GESTURE)
+	/* DT2W sysctl */
+	if (dt2w_sysctl_header)
+		unregister_sysctl_table(dt2w_sysctl_header);
+#endif
 
 #ifdef CONFIG_MACH_XIAOMI
 	xiaomi_ts_probed = false;
