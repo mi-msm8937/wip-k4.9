@@ -68,10 +68,8 @@
 		pinctrl-0 = <&ts_int_active &ts_reset_active>;
 		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
 		pinctrl-2 = <&ts_release>;
-		ist30xx,name = "ist30xx";
-		ist30xx,family-id = <0x36>;
-		ist30xx,reset-gpio = <&tlmm 64 0x00>;
-		ist30xx,irq-gpio = <&tlmm 65 0x2008>;
+		imagis,reset-gpio = <&tlmm 64 0x00>;
+		imagis,irq-gpio = <&tlmm 65 0x2008>;
 		};
 	};
 
@@ -82,17 +80,6 @@
 		qcom,disp-maxy = <1280>;
 		qcom,panel-maxx = <720>;
 		qcom,panel-maxy = <1458>;
-		qcom,key-codes = <139 172 158>;
-		qcom,y-offset = <0>;
-	};
-
-	gen-vkeys_ist {
-		compatible = "qcom,gen-vkeys_ist";
-		label = "ist30xx_ts_input";
-		qcom,disp-maxx = <1080>;
-		qcom,disp-maxy = <1920>;
-		qcom,panel-maxx = <1080>;
-		qcom,panel-maxy = <2098>;
 		qcom,key-codes = <139 172 158>;
 		qcom,y-offset = <0>;
 	};
