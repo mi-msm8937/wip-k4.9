@@ -35,6 +35,9 @@
 *****************************************************************************/
 #include "focaltech_core.h"
 
+#if FTS_GESTURE_EN
+#include <linux/sysctl.h>
+#endif
 /******************************************************************************
 * Private constant and macro definitions using #define
 *****************************************************************************/
@@ -93,6 +96,11 @@ struct fts_gesture_st {
 *****************************************************************************/
 static struct fts_gesture_st fts_gesture_data;
 extern bool new_fts_gesture_enable;
+#if FTS_GESTURE_EN
+static int sysctl_dt2w_min_val = 0;
+static int sysctl_dt2w_max_val = 1;
+static struct ctl_table_header *dt2w_sysctl_header;
+#endif
 
 /*****************************************************************************
 * Global variable or extern global variabls/functions
@@ -425,6 +433,30 @@ int new_fts_gesture_resume(struct fts_ts_data *ts_data)
 	return 0;
 }
 
+#if FTS_GESTURE_EN
+static struct ctl_table dt2w_child_table[] = {
+    {
+        .procname       = "dt2w",
+        .maxlen         = sizeof(int),
+        .mode           = 0666,
+        .data           = &new_fts_gesture_enable,
+        .proc_handler   = &proc_dointvec_minmax,
+        .extra1         = &sysctl_dt2w_min_val,
+        .extra2         = &sysctl_dt2w_max_val,
+    },
+    {}
+};
+
+static struct ctl_table dt2w_parent_table[] = {
+    {
+        .procname       = "dev",
+        .mode           = 0555,
+        .child          = dt2w_child_table,
+    },
+    {}
+};
+#endif
+
 int new_fts_gesture_init(struct fts_ts_data *ts_data)
 {
 	struct input_dev *input_dev = ts_data->input_dev;
@@ -471,6 +503,13 @@ int new_fts_gesture_init(struct fts_ts_data *ts_data)
 	new_fts_gesture_enable = false;
 #endif
 
+#if FTS_GESTURE_EN
+	/* DT2W sysctl */
+	dt2w_sysctl_header = register_sysctl_table(dt2w_parent_table);
+	if (!dt2w_sysctl_header)
+		pr_err("Error: Failed to register dt2w_sysctl_header\n");
+#endif
+
 	FTS_FUNC_EXIT();
 	return 0;
 }
@@ -479,6 +518,11 @@ int new_fts_gesture_exit(struct fts_ts_data *ts_data)
 {
 	FTS_FUNC_ENTER();
 	sysfs_remove_group(&ts_data->dev->kobj, &fts_gesture_group);
+#if FTS_GESTURE_EN
+	/* DT2W sysctl */
+	if (dt2w_sysctl_header)
+		unregister_sysctl_table(dt2w_sysctl_header);
+#endif
 	FTS_FUNC_EXIT();
 	return 0;
 }
