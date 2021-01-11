@@ -1879,6 +1879,10 @@ static int fb_notifier_callback(struct notifier_block *self,
 
 static char tp_info_summary[80] = "";
 
+#ifdef CONFIG_MACH_XIAOMI
+extern bool xiaomi_ts_probed;
+#endif
+
 static int ist30xx_probe(struct i2c_client *client,
 		const struct i2c_device_id *id)
 {
@@ -1890,6 +1894,11 @@ static int ist30xx_probe(struct i2c_client *client,
 	char tp_temp_info[80];
 #ifdef XIAOMI_PRODUCT
 	u32 info_data[2];
+#endif
+
+#ifdef CONFIG_MACH_XIAOMI
+	if (xiaomi_ts_probed)
+		return -ENODEV;
 #endif
 
 	tsp_info("### IMAGIS probe(ver:%s, addr:0x%02X) ###\n",
@@ -2155,6 +2164,10 @@ static int ist30xx_probe(struct i2c_client *client,
 */
 	tsp_info("### IMAGIS probe success ###\n");
 
+#ifdef CONFIG_MACH_XIAOMI
+	xiaomi_ts_probed = true;
+#endif
+
 	return 0;
 
 #ifndef IST30XX_UPDATE_BY_WORKQUEUE
@@ -2233,6 +2246,10 @@ static int ist30xx_remove(struct i2c_client *client)
 	input_unregister_device(data->input_dev);
 	input_free_device(data->input_dev);
 	kfree(data);
+
+#ifdef CONFIG_MACH_XIAOMI
+	xiaomi_ts_probed = false;
+#endif
 
 	return 0;
 }
