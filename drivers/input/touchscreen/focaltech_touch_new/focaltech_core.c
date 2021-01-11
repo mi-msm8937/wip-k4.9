@@ -1798,12 +1798,21 @@ out:
 	return ret;
 }
 
+#ifdef CONFIG_MACH_XIAOMI
+extern bool xiaomi_ts_probed;
+#endif
+
 static int fts_ts_probe(struct i2c_client *client,
 		const struct i2c_device_id *id)
 {
 	int ret = 0;
 	struct fts_ts_data *ts_data = NULL;
 	struct device_node *dp = client->dev.of_node;
+
+#ifdef CONFIG_MACH_XIAOMI
+	if (xiaomi_ts_probed)
+		return -ENODEV;
+#endif
 
 	FTS_INFO("Touch Screen(I2C BUS) driver prboe...");
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
@@ -1841,12 +1850,20 @@ static int fts_ts_probe(struct i2c_client *client,
 		return ret;
 	}
 
+#ifdef CONFIG_MACH_XIAOMI
+	xiaomi_ts_probed = true;
+#endif
+
 	FTS_INFO("Touch Screen(I2C BUS) driver prboe successfully");
 	return 0;
 }
 
 static int fts_ts_remove(struct i2c_client *client)
 {
+#ifdef CONFIG_MACH_XIAOMI
+	xiaomi_ts_probed = false;
+#endif
+
 	return fts_ts_remove_entry(i2c_get_clientdata(client));
 }
 
