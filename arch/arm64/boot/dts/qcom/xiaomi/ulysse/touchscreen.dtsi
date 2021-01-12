@@ -103,5 +103,6 @@
             focaltech,keys = <139 172 158>;
             focaltech,key-y-coord = <1350>;
             focaltech,key-x-coords = <180 350 540>;
+            focaltech,wakeup-gestures-en;
         };
 };
