@@ -207,20 +207,20 @@ int fts_bus_init(struct fts_ts_data *ts_data);
 int fts_bus_exit(struct fts_ts_data *ts_data);
 
 /* Gesture functions */
-int fts_gesture_init(struct fts_ts_data *ts_data);
-int fts_gesture_exit(struct fts_ts_data *ts_data);
-void fts_gesture_recovery(struct fts_ts_data *ts_data);
-int fts_gesture_readdata(struct fts_ts_data *ts_data, u8 *data);
-int fts_gesture_suspend(struct fts_ts_data *ts_data);
-int fts_gesture_resume(struct fts_ts_data *ts_data);
+int new_fts_gesture_init(struct fts_ts_data *ts_data);
+int new_fts_gesture_exit(struct fts_ts_data *ts_data);
+void new_fts_gesture_recovery(struct fts_ts_data *ts_data);
+int new_fts_gesture_readdata(struct fts_ts_data *ts_data, u8 *data);
+int new_fts_gesture_suspend(struct fts_ts_data *ts_data);
+int new_fts_gesture_resume(struct fts_ts_data *ts_data);
 
 /* Apk and functions */
-int fts_create_apk_debug_channel(struct fts_ts_data *);
-void fts_release_apk_debug_channel(struct fts_ts_data *);
+int new_fts_create_apk_debug_channel(struct fts_ts_data *);
+void new_fts_release_apk_debug_channel(struct fts_ts_data *);
 
 /* ADB functions */
-int fts_create_sysfs(struct fts_ts_data *ts_data);
-int fts_remove_sysfs(struct fts_ts_data *ts_data);
+int new_fts_create_sysfs(struct fts_ts_data *ts_data);
+int new_fts_remove_sysfs(struct fts_ts_data *ts_data);
 
 /* ESD */
 #if FTS_ESDCHECK_EN
@@ -248,14 +248,14 @@ int fts_upgrade_bin(char *fw_name, bool force);
 int fts_enter_test_environment(bool test_state);
 
 /* Other */
-int fts_reset_proc(int hdelayms);
-int fts_wait_tp_to_valid(void);
+int new_fts_reset_proc(int hdelayms);
+int new_fts_wait_tp_to_valid(void);
 void fts_release_all_finger(void);
-void fts_tp_state_recovery(struct fts_ts_data *ts_data);
-int fts_ex_mode_init(struct fts_ts_data *ts_data);
-int fts_ex_mode_exit(struct fts_ts_data *ts_data);
-int fts_ex_mode_recovery(struct fts_ts_data *ts_data);
+void new_fts_tp_state_recovery(struct fts_ts_data *ts_data);
+int new_fts_ex_mode_init(struct fts_ts_data *ts_data);
+int new_fts_ex_mode_exit(struct fts_ts_data *ts_data);
+int new_fts_ex_mode_recovery(struct fts_ts_data *ts_data);
 
-void fts_irq_disable(void);
-void fts_irq_enable(void);
+void new_fts_irq_disable(void);
+void new_fts_irq_enable(void);
 #endif /* __LINUX_FOCALTECH_CORE_H__ */

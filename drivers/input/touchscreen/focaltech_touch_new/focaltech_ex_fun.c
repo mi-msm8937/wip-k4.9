@@ -175,7 +175,7 @@ static ssize_t fts_debug_write(
 		tmp[buflen - 1] = '\0';
 		if (memcmp(tmp, "focal_driver", 12) == 0) {
 			FTS_INFO("APK execute HW Reset");
-			fts_reset_proc(0);
+			new_fts_reset_proc(0);
 		}
 		break;
 
@@ -387,7 +387,7 @@ static int fts_debug_write(struct file *filp,
 		tmp[buflen - 1] = '\0';
 		if (memcmp(tmp, "focal_driver", 12) == 0) {
 			FTS_INFO("APK execute HW Reset");
-			fts_reset_proc(0);
+			new_fts_reset_proc(0);
 		}
 		break;
 
@@ -501,7 +501,7 @@ proc_read_err:
 }
 #endif
 
-int fts_create_apk_debug_channel(struct fts_ts_data *ts_data)
+int new_fts_create_apk_debug_channel(struct fts_ts_data *ts_data)
 {
 	struct ftxxxx_proc *proc = &ts_data->proc;
 
@@ -525,7 +525,7 @@ int fts_create_apk_debug_channel(struct fts_ts_data *ts_data)
 	return 0;
 }
 
-void fts_release_apk_debug_channel(struct fts_ts_data *ts_data)
+void new_fts_release_apk_debug_channel(struct fts_ts_data *ts_data)
 {
 	struct ftxxxx_proc *proc = &ts_data->proc;
 
@@ -549,7 +549,7 @@ static ssize_t fts_hw_reset_show(
 	ssize_t count = 0;
 
 	mutex_lock(&input_dev->mutex);
-	fts_reset_proc(0);
+	new_fts_reset_proc(0);
 	count = snprintf(buf, PAGE_SIZE, "hw reset executed\n");
 	mutex_unlock(&input_dev->mutex);
 
@@ -584,10 +584,10 @@ static ssize_t fts_irq_store(
 	mutex_lock(&input_dev->mutex);
 	if (FTS_SYSFS_ECHO_ON(buf)) {
 		FTS_INFO("enable irq");
-		fts_irq_enable();
+		new_fts_irq_enable();
 	} else if (FTS_SYSFS_ECHO_OFF(buf)) {
 		FTS_INFO("disable irq");
-		fts_irq_disable();
+		new_fts_irq_disable();
 	}
 	mutex_unlock(&input_dev->mutex);
 	return count;
@@ -1219,7 +1219,7 @@ static struct attribute_group fts_attribute_group = {
 	.attrs = fts_attributes
 };
 
-int fts_create_sysfs(struct fts_ts_data *ts_data)
+int new_fts_create_sysfs(struct fts_ts_data *ts_data)
 {
 	int ret = 0;
 
@@ -1235,7 +1235,7 @@ int fts_create_sysfs(struct fts_ts_data *ts_data)
 	return ret;
 }
 
-int fts_remove_sysfs(struct fts_ts_data *ts_data)
+int new_fts_remove_sysfs(struct fts_ts_data *ts_data)
 {
 	sysfs_remove_group(&ts_data->dev->kobj, &fts_attribute_group);
 	return 0;

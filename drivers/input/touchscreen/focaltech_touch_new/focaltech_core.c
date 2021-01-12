@@ -78,14 +78,14 @@ static int fts_ts_suspend(struct device *dev);
 static int fts_ts_resume(struct device *dev);
 
 /*****************************************************************************
-*  Name: fts_wait_tp_to_valid
+*  Name: new_fts_wait_tp_to_valid
 *  Brief: Read chip id until TP FW become valid(Timeout: TIMEOUT_READ_REG),
 *         need call when reset/power on/resume...
 *  Input:
 *  Output:
 *  Return: return 0 if tp valid, otherwise return error code
 *****************************************************************************/
-int fts_wait_tp_to_valid(void)
+int new_fts_wait_tp_to_valid(void)
 {
 	int ret = 0;
 	int cnt = 0;
@@ -111,27 +111,27 @@ int fts_wait_tp_to_valid(void)
 }
 
 /*****************************************************************************
-*  Name: fts_tp_state_recovery
+*  Name: new_fts_tp_state_recovery
 *  Brief: Need execute this function when reset
 *  Input:
 *  Output:
 *  Return:
 *****************************************************************************/
-void fts_tp_state_recovery(struct fts_ts_data *ts_data)
+void new_fts_tp_state_recovery(struct fts_ts_data *ts_data)
 {
 	FTS_FUNC_ENTER();
 	/* wait tp stable */
-	fts_wait_tp_to_valid();
+	new_fts_wait_tp_to_valid();
 	/* recover TP charger state 0x8B */
 	/* recover TP glove state 0xC0 */
 	/* recover TP cover state 0xC1 */
-	fts_ex_mode_recovery(ts_data);
+	new_fts_ex_mode_recovery(ts_data);
 	/* recover TP gesture state 0xD0 */
-	fts_gesture_recovery(ts_data);
+	new_fts_gesture_recovery(ts_data);
 	FTS_FUNC_EXIT();
 }
 
-int fts_reset_proc(int hdelayms)
+int new_fts_reset_proc(int hdelayms)
 {
 	FTS_DEBUG("tp reset");
 	gpio_direction_output(fts_data->pdata->reset_gpio, 0);
@@ -144,7 +144,7 @@ int fts_reset_proc(int hdelayms)
 	return 0;
 }
 
-void fts_irq_disable(void)
+void new_fts_irq_disable(void)
 {
 	unsigned long irqflags;
 
@@ -160,7 +160,7 @@ void fts_irq_disable(void)
 	FTS_FUNC_EXIT();
 }
 
-void fts_irq_enable(void)
+void new_fts_irq_enable(void)
 {
 	unsigned long irqflags = 0;
 
@@ -614,7 +614,7 @@ static int fts_read_touchdata(struct fts_ts_data *data)
 	buf[0] = 0x01;
 
 	if (data->gesture_mode) {
-		if (0 == fts_gesture_readdata(data, NULL)) {
+		if (0 == new_fts_gesture_readdata(data, NULL)) {
 			FTS_INFO("succuss to get gesture data in irq handler");
 			return 1;
 		}
@@ -657,7 +657,7 @@ static int fts_read_parse_touchdata(struct fts_ts_data *data)
 			&& (buf[5] == 0xFF) && (buf[6] == 0xFF)) {
 			FTS_DEBUG("touch buff is 0xff, need recovery state");
 			fts_release_all_finger();
-			fts_tp_state_recovery(data);
+			new_fts_tp_state_recovery(data);
 			return -EIO;
 		}
 	}
@@ -1466,7 +1466,7 @@ static int fts_ts_probe_entry(struct fts_ts_data *ts_data)
 #endif
 
 #if (!FTS_CHIP_IDC)
-	fts_reset_proc(200);
+	new_fts_reset_proc(200);
 #endif
 
 	ret = fts_get_ic_information(ts_data);
@@ -1475,12 +1475,12 @@ static int fts_ts_probe_entry(struct fts_ts_data *ts_data)
 		goto err_irq_req;
 	}
 
-	ret = fts_create_apk_debug_channel(ts_data);
+	ret = new_fts_create_apk_debug_channel(ts_data);
 	if (ret) {
 		FTS_ERROR("create apk debug node fail");
 	}
 
-	ret = fts_create_sysfs(ts_data);
+	ret = new_fts_create_sysfs(ts_data);
 	if (ret) {
 		FTS_ERROR("create sysfs node fail");
 	}
@@ -1492,12 +1492,12 @@ static int fts_ts_probe_entry(struct fts_ts_data *ts_data)
 	}
 #endif
 
-	ret = fts_ex_mode_init(ts_data);
+	ret = new_fts_ex_mode_init(ts_data);
 	if (ret) {
 		FTS_ERROR("init glove/cover/charger fail");
 	}
 
-	ret = fts_gesture_init(ts_data);
+	ret = new_fts_gesture_init(ts_data);
 	if (ret) {
 		FTS_ERROR("init gesture fail");
 	}
@@ -1586,9 +1586,9 @@ static int fts_ts_remove_entry(struct fts_ts_data *ts_data)
 	fts_point_report_check_exit(ts_data);
 #endif
 
-	fts_release_apk_debug_channel(ts_data);
-	fts_remove_sysfs(ts_data);
-	fts_ex_mode_exit(ts_data);
+	new_fts_release_apk_debug_channel(ts_data);
+	new_fts_remove_sysfs(ts_data);
+	new_fts_ex_mode_exit(ts_data);
 
 	fts_fwupg_exit(ts_data);
 
@@ -1597,7 +1597,7 @@ static int fts_ts_remove_entry(struct fts_ts_data *ts_data)
 	fts_esdcheck_exit(ts_data);
 #endif
 
-	fts_gesture_exit(ts_data);
+	new_fts_gesture_exit(ts_data);
 	fts_bus_exit(ts_data);
 
 	free_irq(ts_data->irq, ts_data);
@@ -1659,9 +1659,9 @@ static int fts_ts_suspend(struct device *dev)
 #endif
 
 	if (ts_data->gesture_mode) {
-		fts_gesture_suspend(ts_data);
+		new_fts_gesture_suspend(ts_data);
 	} else {
-		fts_irq_disable();
+		new_fts_irq_disable();
 
 		FTS_INFO("make TP enter into sleep mode");
 		ret = fts_write_reg(FTS_REG_POWER_MODE,
@@ -1701,20 +1701,20 @@ static int fts_ts_resume(struct device *dev)
 #if FTS_POWER_SOURCE_CUST_EN
 		fts_power_source_resume(ts_data);
 #endif
-		fts_reset_proc(200);
+		new_fts_reset_proc(200);
 	}
 
-	fts_wait_tp_to_valid();
-	fts_ex_mode_recovery(ts_data);
+	new_fts_wait_tp_to_valid();
+	new_fts_ex_mode_recovery(ts_data);
 
 #if FTS_ESDCHECK_EN
 	fts_esdcheck_resume();
 #endif
 
 	if (ts_data->gesture_mode) {
-		fts_gesture_resume(ts_data);
+		new_fts_gesture_resume(ts_data);
 	} else {
-		fts_irq_enable();
+		new_fts_irq_enable();
 	}
 
 	ts_data->suspended = false;

@@ -540,7 +540,7 @@ static bool fts_fwupg_check_fw_valid(void)
 {
 	int ret = 0;
 
-	ret = fts_wait_tp_to_valid();
+	ret = new_fts_wait_tp_to_valid();
 	if (ret < 0) {
 		FTS_INFO("tp fw invaild");
 		return false;
@@ -1073,7 +1073,7 @@ int fts_upgrade_bin(char *fw_name, bool force)
 	}
 
 	upg->ts_data->fw_loading = true;
-	fts_irq_disable();
+	new_fts_irq_disable();
 #if FTS_ESDCHECK_EN
 	fts_esdcheck_switch(DISABLE);
 #endif
@@ -1121,7 +1121,7 @@ err_bin:
 #if FTS_ESDCHECK_EN
 	fts_esdcheck_switch(ENABLE);
 #endif
-	fts_irq_enable();
+	new_fts_irq_enable();
 	upg->ts_data->fw_loading = false;
 
 	if (fw_file_buf) {
@@ -1893,7 +1893,7 @@ static void fts_fwupg_work(struct work_struct *work)
 	}
 
 	upg->ts_data->fw_loading = true;
-	fts_irq_disable();
+	new_fts_irq_disable();
 #if FTS_ESDCHECK_EN
 	fts_esdcheck_switch(DISABLE);
 #endif
@@ -1912,7 +1912,7 @@ static void fts_fwupg_work(struct work_struct *work)
 #if FTS_ESDCHECK_EN
 	fts_esdcheck_switch(ENABLE);
 #endif
-	fts_irq_enable();
+	new_fts_irq_enable();
 	upg->ts_data->fw_loading = false;
 }
 
