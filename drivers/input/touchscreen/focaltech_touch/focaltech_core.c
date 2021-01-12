@@ -992,6 +992,8 @@ static int fts_parse_dt(struct device *dev, struct fts_ts_platform_data *pdata)
 	pdata->wakeup_gestures_en = of_property_read_bool(np,
 			"focaltech,wakeup-gestures-en");
 
+	pr_info("pdata->wakeup_gestures_en = %d",pdata->wakeup_gestures_en);
+
 	FTS_FUNC_EXIT();
 	return 0;
 }
