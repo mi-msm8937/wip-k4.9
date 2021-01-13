@@ -1027,7 +1027,7 @@ static int bq2560x_usb_get_property(struct power_supply *psy,
 		val->intval = bq->usb_present;
 		break;
 	case POWER_SUPPLY_PROP_ONLINE:
-		val->intval = bq->usb_present && bq->charge_state != CHARGE_STATE_IDLE;
+		val->intval = bq->usb_present;
 		break;
 	case POWER_SUPPLY_PROP_REAL_TYPE:
 		val->intval = POWER_SUPPLY_TYPE_UNKNOWN;
