@@ -222,6 +222,8 @@ enum {
 	FT_FT5336_FAMILY_ID_0x14 = 0x14,
 };
 
+static int ft5x06_gesture_enable = 1;
+
 #define FT_STORE_TS_INFO(buf, id, fw_maj, fw_min, fw_sub_min) \
 			snprintf(buf, FT_INFO_MAX_LEN, \
 				"vendor name = Focaltech\n" \
@@ -615,7 +617,7 @@ static ssize_t ft5x06_gesture_enable_to_set_show(struct device *dev,
 	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%d\n",
-			data->gesture_pdata->gesture_enable_to_set);
+			ft5x06_gesture_enable);
 }
 
 static ssize_t ft5x06_gesture_enable_to_set_store(struct device *dev,
@@ -637,9 +639,9 @@ static ssize_t ft5x06_gesture_enable_to_set_store(struct device *dev,
 	}
 
 	if (value == 1)
-		data->gesture_pdata->gesture_enable_to_set = 1;
+		ft5x06_gesture_enable = 1;
 	else
-		data->gesture_pdata->gesture_enable_to_set = 0;
+		ft5x06_gesture_enable = 0;
 	return size;
 }
 
@@ -1329,7 +1331,7 @@ static int ft5x06_ts_suspend(struct device *dev)
 
 	if (ft5x06_gesture_support_enabled() && data->pdata->gesture_support &&
 		device_may_wakeup(dev) &&
-		data->gesture_pdata->gesture_enable_to_set) {
+		ft5x06_gesture_enable) {
 
 		ft5x0x_write_reg(data->client, FT_REG_GESTURE_ENABLE, 1);
 		err = enable_irq_wake(data->client->irq);
@@ -1358,7 +1360,7 @@ static int ft5x06_ts_resume(struct device *dev)
 	if (ft5x06_gesture_support_enabled() && data->pdata->gesture_support &&
 		device_may_wakeup(dev) &&
 		!(data->gesture_pdata->in_pocket) &&
-		data->gesture_pdata->gesture_enable_to_set) {
+		ft5x06_gesture_enable) {
 
 		ft5x0x_write_reg(data->client, FT_REG_GESTURE_ENABLE, 0);
 		err = disable_irq_wake(data->client->irq);
@@ -1376,7 +1378,7 @@ static int ft5x06_ts_resume(struct device *dev)
 	if (ft5x06_gesture_support_enabled() && data->pdata->gesture_support &&
 		device_may_wakeup(dev) &&
 		data->gesture_pdata->in_pocket &&
-		data->gesture_pdata->gesture_enable_to_set) {
+		ft5x06_gesture_enable) {
 
 		ft5x0x_write_reg(data->client, FT_REG_GESTURE_ENABLE, 0);
 		err = disable_irq_wake(data->client->irq);

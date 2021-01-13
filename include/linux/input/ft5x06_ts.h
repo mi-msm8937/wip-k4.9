@@ -35,7 +35,6 @@ struct fw_upgrade_info {
 };
 
 struct ft5x06_gesture_platform_data {
-	int gesture_enable_to_set;	/* enable/disable gesture */
 	int in_pocket;	/* whether in pocket mode or not */
 	struct device *dev;
 	struct class *gesture_class;
