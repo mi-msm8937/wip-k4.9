@@ -953,7 +953,7 @@ static int bq2560x_charger_get_property(struct power_supply *psy,
 		pr_debug("POWER_SUPPLY_PROP_CHARGE_TYPE:%d\n", val->intval);
 		break;
 	case POWER_SUPPLY_PROP_CHARGING_ENABLED:
-		val->intval = bq->charge_enabled;
+		val->intval = bq->charge_state != CHARGE_STATE_IDLE;
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
 #ifdef CONFIG_MACH_XIAOMI_ULYSSE
