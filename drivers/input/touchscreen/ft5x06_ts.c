@@ -36,6 +36,9 @@
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 
+#ifdef CONFIG_TOUCHSCREEN_FT5X06_GESTURE
+#include <linux/sysctl.h>
+#endif
 
 #if defined(CONFIG_FB)
 #include <linux/notifier.h>
@@ -223,6 +226,12 @@ enum {
 };
 
 static int ft5x06_gesture_enable = 1;
+
+#ifdef CONFIG_TOUCHSCREEN_FT5X06_GESTURE
+static int sysctl_dt2w_min_val = 0;
+static int sysctl_dt2w_max_val = 1;
+static struct ctl_table_header *dt2w_sysctl_header;
+#endif
 
 #define FT_STORE_TS_INFO(buf, id, fw_maj, fw_min, fw_sub_min) \
 			snprintf(buf, FT_INFO_MAX_LEN, \
@@ -2249,6 +2258,30 @@ static int ft5x06_parse_dt(struct device *dev,
 }
 #endif
 
+#ifdef CONFIG_TOUCHSCREEN_FT5X06_GESTURE
+static struct ctl_table dt2w_child_table[] = {
+    {
+        .procname       = "dt2w",
+        .maxlen         = sizeof(int),
+        .mode           = 0666,
+        .data           = &ft5x06_gesture_enable,
+        .proc_handler   = &proc_dointvec_minmax,
+        .extra1         = &sysctl_dt2w_min_val,
+        .extra2         = &sysctl_dt2w_max_val,
+    },
+    {}
+};
+
+static struct ctl_table dt2w_parent_table[] = {
+    {
+        .procname       = "dev",
+        .mode           = 0555,
+        .child          = dt2w_child_table,
+    },
+    {}
+};
+#endif
+
 #ifdef CONFIG_MACH_XIAOMI
 extern bool xiaomi_ts_probed;
 #endif
@@ -2617,6 +2650,13 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 	register_early_suspend(&data->early_suspend);
 #endif
 
+#ifdef CONFIG_TOUCHSCREEN_FT5X06_GESTURE
+	/* DT2W sysctl */
+	dt2w_sysctl_header = register_sysctl_table(dt2w_parent_table);
+	if (!dt2w_sysctl_header)
+		pr_err("Error: Failed to register dt2w_sysctl_header\n");
+#endif
+
 #ifdef CONFIG_MACH_XIAOMI
 	xiaomi_ts_probed = true;
 #endif
@@ -2748,6 +2788,12 @@ static int ft5x06_ts_remove(struct i2c_client *client)
 
 	input_unregister_device(data->input_dev);
 	kobject_put(data->ts_info_kobj);
+
+#ifdef CONFIG_TOUCHSCREEN_FT5X06_GESTURE
+	/* DT2W sysctl */
+	if (dt2w_sysctl_header)
+		unregister_sysctl_table(dt2w_sysctl_header);
+#endif
 
 #ifdef CONFIG_MACH_XIAOMI
 	xiaomi_ts_probed = false;
