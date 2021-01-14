@@ -513,12 +513,12 @@ struct sdhci_host {
  * The tuning data has to be compared from SW driver to validate the correct
  * phase.
  */
-#define SDHCI_QUIRK2_NON_STANDARD_TUNING (1 << 28)
+#define SDHCI_QUIRK2_NON_STANDARD_TUNING (1 << 22)
 /*
  * Some controllers may use PIO mode to workaround HW issues in ADMA for
  * eMMC tuning commands.
  */
-#define SDHCI_QUIRK2_USE_PIO_FOR_EMMC_TUNING (1 << 29)
+#define SDHCI_QUIRK2_USE_PIO_FOR_EMMC_TUNING (1 << 23)
 
 
 	int irq;		/* Device IRQ */
