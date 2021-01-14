@@ -39,6 +39,11 @@
 #include <linux/mmc/sd.h>
 #include <linux/mmc/slot-gpio.h>
 
+#ifdef CONFIG_MACH_XIAOMI
+#include <linux/xiaomi_device.h>
+extern int xiaomi_device_read(void);
+#endif
+
 #define CREATE_TRACE_POINTS
 #include <trace/events/mmc.h>
 
@@ -707,7 +712,19 @@ static int mmc_devfreq_create_freq_table(struct mmc_host *host)
 		pr_debug("%s: frequency table undershot possible freq\n",
 			mmc_hostname(host));
 
+#ifdef CONFIG_MACH_XIAOMI_LAND
+	if (xiaomi_device_read() == XIAOMI_DEVICE_LAND && strcmp(mmc_hostname(host), "mmc1")) {
+			clk_scaling->freq_table[0] = host->card->clk_scaling_highest;
+	} else {
+#endif
 	for (i = 0; i < clk_scaling->freq_table_sz; i++) {
+#ifdef CONFIG_MACH_XIAOMI_LAND
+		if (xiaomi_device_read() == XIAOMI_DEVICE_LAND) {
+			if (!clk_scaling->freq_table[i] <
+				host->card->clk_scaling_highest)
+				break;
+		}
+#endif
 		if (clk_scaling->freq_table[i] <=
 			host->card->clk_scaling_highest)
 			continue;
@@ -718,6 +735,9 @@ static int mmc_devfreq_create_freq_table(struct mmc_host *host)
 				mmc_hostname(host), clk_scaling->freq_table[i]);
 		break;
 	}
+#ifdef CONFIG_MACH_XIAOMI_LAND
+	}
+#endif
 
 out:
 	/**
