@@ -19,6 +19,11 @@
 #include "msm-pcm-routing-v2.h"
 #include "codecs/wcd9335.h"
 
+#ifdef CONFIG_MACH_XIAOMI
+#include <linux/xiaomi_device.h>
+extern int xiaomi_device_read(void);
+#endif
+
 #define DEV_NAME_STR_LEN            32
 
 /* dummy definition of below deprecated FE DAI's*/
@@ -1609,6 +1614,9 @@ struct snd_soc_card *populate_snd_card_dailinks(struct device *dev)
 		"msm8952-tashalite-snd-card",
 		"msm8953-tashalite-snd-card"
 	};
+#ifdef CONFIG_MACH_XIAOMI_LAND
+	int i;
+#endif
 
 	card->dev = dev;
 	ret = snd_soc_of_parse_card_name(card, "qcom,model");
@@ -1671,6 +1679,19 @@ struct snd_soc_card *populate_snd_card_dailinks(struct device *dev)
 	card->dai_link = msm8952_dai_links;
 	card->num_links = len5;
 	card->dev = dev;
+
+#ifdef CONFIG_MACH_XIAOMI_LAND
+	if (xiaomi_device_read() == XIAOMI_DEVICE_LAND) {
+		for (i = 0; i < card->num_links; i++) {
+			struct snd_soc_dai_link *link = &card->dai_link[i];
+			if (link->old_cpu_dai_name) {
+				pr_info("DAI LINK %s will use old cpu dai name: %s",link->name,link->old_cpu_dai_name);
+				link->cpu_dai_name = link->old_cpu_dai_name;
+			}
+		}
+	}
+#endif
+
 	return card;
 }
 

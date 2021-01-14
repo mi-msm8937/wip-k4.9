@@ -20,6 +20,11 @@
 #include <sound/pcm.h>
 #include <sound/soc.h>
 
+#ifdef CONFIG_MACH_XIAOMI
+#include <linux/xiaomi_device.h>
+extern int xiaomi_device_read(void);
+#endif
+
 static struct snd_soc_dai_ops msm_fe_dai_ops = {};
 
 /* Conventional and unconventional sample rate supported */
@@ -2780,9 +2785,25 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 
 static int msm_fe_dai_dev_probe(struct platform_device *pdev)
 {
+#ifdef CONFIG_MACH_XIAOMI_LAND
+	int i;
+#endif
 
 	dev_dbg(&pdev->dev, "%s: dev name %s\n", __func__,
 		dev_name(&pdev->dev));
+
+#ifdef CONFIG_MACH_XIAOMI_LAND
+	if (xiaomi_device_read() == XIAOMI_DEVICE_LAND) {
+		for (i = 0; i < ARRAY_SIZE(msm_fe_dais); i++) {
+			struct snd_soc_dai_driver *dai = &msm_fe_dais[i];
+			if (dai->old_name) {
+				pr_info("DAI name %s will be replaced with the old one: %s",dai->name,dai->old_name);
+				dai->name = dai->old_name;
+			}
+		}
+	}
+#endif
+
 	return snd_soc_register_component(&pdev->dev, &msm_fe_dai_component,
 		msm_fe_dais, ARRAY_SIZE(msm_fe_dais));
 }

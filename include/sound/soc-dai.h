@@ -227,6 +227,9 @@ struct snd_soc_dai_ops {
 struct snd_soc_dai_driver {
 	/* DAI description */
 	const char *name;
+#ifdef CONFIG_MACH_XIAOMI_LAND
+	const char *old_name;
+#endif
 	unsigned int id;
 	unsigned int base;
 	struct snd_soc_dobj dobj;
