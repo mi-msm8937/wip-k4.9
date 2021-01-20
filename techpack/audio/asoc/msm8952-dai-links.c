@@ -362,9 +362,6 @@ static struct snd_soc_dai_link msm8952_common_fe_dai[] = {
 		.name = "Circuit-Switch Voice",
 		.stream_name = "CS-Voice",
 		.cpu_dai_name   = "VoiceMMode1",
-#ifdef CONFIG_MACH_XIAOMI_LAND
-		.old_cpu_dai_name   = "CS-VOICE",
-#endif
 		.platform_name  = "msm-pcm-voice",
 		.dynamic = 1,
 		.dpcm_capture = 1,
@@ -538,9 +535,6 @@ static struct snd_soc_dai_link msm8952_common_fe_dai[] = {
 		.name = "Voice2",
 		.stream_name = "Voice2",
 		.cpu_dai_name   = "VoiceMMode1",
-#ifdef CONFIG_MACH_XIAOMI_LAND
-		.old_cpu_dai_name   = "Voice2",
-#endif
 		.platform_name  = "msm-pcm-voice",
 		.dynamic = 1,
 		.dpcm_capture = 1,
@@ -576,9 +570,6 @@ static struct snd_soc_dai_link msm8952_common_fe_dai[] = {
 		.name = "VoLTE",
 		.stream_name = "VoLTE",
 		.cpu_dai_name   = "VoiceMMode1",
-#ifdef CONFIG_MACH_XIAOMI_LAND
-		.old_cpu_dai_name   = "VoLTE",
-#endif
 		.platform_name  = "msm-pcm-voice",
 		.dynamic = 1,
 		.dpcm_capture = 1,
@@ -597,9 +588,6 @@ static struct snd_soc_dai_link msm8952_common_fe_dai[] = {
 		.name = "VoWLAN",
 		.stream_name = "VoWLAN",
 		.cpu_dai_name   = "VoiceMMode1",
-#ifdef CONFIG_MACH_XIAOMI_LAND
-		.old_cpu_dai_name   = "VoWLAN",
-#endif
 		.platform_name  = "msm-pcm-voice",
 		.dynamic = 1,
 		.dpcm_capture = 1,
