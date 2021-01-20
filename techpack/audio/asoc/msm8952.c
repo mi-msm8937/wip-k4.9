@@ -3699,9 +3699,6 @@ static struct snd_soc_card *msm8952_populate_sndcard_dailinks(
 	struct snd_soc_card *card = &bear_card;
 	struct snd_soc_dai_link *dailink;
 	int len1;
-#ifdef CONFIG_MACH_XIAOMI_LAND
-	int i;
-#endif
 
 	card->name = dev_name(dev);
 	len1 = ARRAY_SIZE(msm8952_dai);
@@ -3731,19 +3728,6 @@ static struct snd_soc_card *msm8952_populate_sndcard_dailinks(
 	}
 	card->dai_link = dailink;
 	card->num_links = len1;
-
-#ifdef CONFIG_MACH_XIAOMI_LAND
-	if (xiaomi_device_read() == XIAOMI_DEVICE_LAND) {
-		for (i = 0; i < card->num_links; i++) {
-			struct snd_soc_dai_link *link = &card->dai_link[i];
-			if (link->old_cpu_dai_name) {
-				pr_info("DAI LINK %s will use old cpu dai name: %s",link->name,link->old_cpu_dai_name);
-				link->cpu_dai_name = link->old_cpu_dai_name;
-			}
-		}
-	}
-#endif
-
 	return card;
 }
 
