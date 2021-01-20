@@ -541,6 +541,7 @@ static struct device_attribute attrs[] = {
 
 static inline bool ft5x06_gesture_support_enabled(void)
 {
+	pr_err("FTS GESTURE IS ENABLED = %d",IS_ENABLED(CONFIG_TOUCHSCREEN_FT5X06_GESTURE));
 	return IS_ENABLED(CONFIG_TOUCHSCREEN_FT5X06_GESTURE);
 }
 
@@ -2467,6 +2468,7 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 	}
 
 	if (ft5x06_gesture_support_enabled() && data->pdata->gesture_support) {
+		pr_err("FTS ENTER DT2W PROBE!!!");
 		device_init_wakeup(&client->dev, 1);
 		gesture_pdata = devm_kzalloc(&client->dev,
 				sizeof(struct ft5x06_gesture_platform_data),
