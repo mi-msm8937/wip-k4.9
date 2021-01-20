@@ -2359,7 +2359,7 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 	data->client = client;
 	data->pdata = pdata;
 
-	input_dev->name = "ft5x06_ts";
+	input_dev->name = "ft5x06_720p";
 	input_dev->id.bustype = BUS_I2C;
 	input_dev->dev.parent = &client->dev;
 
