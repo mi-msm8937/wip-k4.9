@@ -648,7 +648,7 @@ static int fts_read_touchdata(struct fts_ts_data *data)
 #if FTS_GESTURE_EN
 	u8 state;
 
-	if (data->suspended && data->pdata->wakeup_gestures_en) {
+	if (data->pdata->wakeup_gestures_en) {
 		fts_i2c_read_reg(data->client, FTS_REG_GESTURE_EN, &state);
 		if (state == 1) {
 			fts_gesture_readdata(data->client);
