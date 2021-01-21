@@ -71,6 +71,11 @@
 #include "ist30xxc_cmcs.h"
 #endif
 
+#ifdef CONFIG_MACH_XIAOMI
+#include <linux/xiaomi_device.h>
+extern int xiaomi_device_read(void);
+#endif
+
 #ifdef IST30XX_USE_KEY
 int ist30xx_key_code[] = IST30XX_KEY_CODES;
 #ifdef IST30XX_USE_KEY_COORD
@@ -2355,6 +2360,10 @@ static struct i2c_driver ist30xx_i2c_driver = {
 
 static int __init ist30xx_init(void)
 {
+#ifdef CONFIG_MACH_XIAOMI
+	if (xiaomi_device_read() != XIAOMI_DEVICE_LAND)
+		return -ENODEV;
+#endif
 	tsp_info("%s()\n", __func__);
 	return i2c_add_driver(&ist30xx_i2c_driver);
 }
