@@ -41,6 +41,7 @@
 #define CDBG(fmt, args...) pr_debug(fmt, ##args)
 
 #undef CCI_DBG
+#define MSM_CCI_DEBUG
 #ifdef MSM_CCI_DEBUG
 #define CCI_DBG(fmt, args...) pr_err(fmt, ##args)
 #else
