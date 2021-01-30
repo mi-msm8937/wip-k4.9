@@ -2658,13 +2658,6 @@ static void msm_chg_detect_work(struct work_struct *w)
 					motg->chg_type == USB_CDP_CHARGER)
 			msm_otg_notify_charger(motg, idev_chg_max);
 
-#ifdef CONFIG_MACH_XIAOMI_ULYSSE
-		if (xiaomi_series_read() == XIAOMI_SERIES_ULYSSE) {
-			if (motg->chg_type == USB_SDP_CHARGER)
-				msm_otg_notify_charger(motg, 500);
-		}
-#endif
-
 		msm_otg_dbg_log_event(phy, "CHG WORK PUT: CHG_TYPE",
 			motg->chg_type, get_pm_runtime_counter(phy->dev));
 		/* to match _get at the start of chg_det_work */
