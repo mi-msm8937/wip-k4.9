@@ -8,6 +8,8 @@
 	model = "Qualcomm Technologies, Inc. MSM8917-PMI8937 QRD SKU5";
 	qcom,board-id = < 0x1000b 0x02 0x2000b 0x02 >;
 	qcom,msm-id = < 0x12f 0x00 0x134 0x00 0x135 0x00 >;
+	xiaomi,series = "rova";
+	xiaomi,device = "riva";
 
 	SGM3780_default {
 		phandle = < 0x187 >;
@@ -2449,6 +2451,7 @@
 			status = "okay";
 
 			aw2013@45 {
+				status = "disabled";
 				compatible = "awinc,aw2013";
 				reg = < 0x45 >;
 				rgb_led-supply = < 0xdf >;
@@ -2576,7 +2579,7 @@
 			status = "ok";
 
 			ftech@38 {
-				compatible = "focaltech,5336";
+				compatible = "focaltech,5346";
 				ftech,display-coords = < 0x00 0x00 0x2d0 0x500 >;
 				ftech,family-id = < 0x36 >;
 				ftech,fw-auto-cal;
@@ -11175,7 +11178,7 @@
 				reg = < 0x01 >;
 				spi-cpol;
 				spi-max-frequency = < 0x2faf080 >;
-				status = "ok";
+				status = "disabled";
 			};
 		};
 
