@@ -36,3 +36,10 @@ config MACH_XIAOMI_ULYSSE
 	depends on ARCH_MSM8940
 	help
 	  Support for Xiaomi Redmi Note 5A (Unified).
+
+config MACH_XIAOMI_PRADA
+	bool "Xiaomi Redmi 4"
+	depends on MACH_XIAOMI
+	depends on ARCH_MSM8937
+	help
+	  Support for Xiaomi Redmi 4.
