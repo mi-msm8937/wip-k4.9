@@ -7,6 +7,10 @@
 	};
 };
 
+&qpnp_fg {
+	qcom,battery-data = <&mtp_batterydata>;
+};
+
 &qpnp_smbcharger {
 	/delete-property/ qcom,chg-led-support;
 
