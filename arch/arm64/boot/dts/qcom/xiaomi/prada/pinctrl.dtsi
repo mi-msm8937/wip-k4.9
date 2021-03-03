@@ -126,7 +126,6 @@
 					input-enable;
 					pins = "gpio46";
 				};
-
 				mux {
 					function = "gpio";
 					pins = "gpio46";
@@ -160,11 +159,11 @@
 				config {
 					bias-disable = < 0x00 >;
 					drive-strength = < 0x02 >;
-					pins = "gpio0\0gpio1\0gpio2\0gpio3";
+					pins = "gpio0", "gpio1", "gpio2", "gpio3";
 				};
 				mux {
 					function = "blsp_spi1";
-					pins = "gpio0\0gpio1\0gpio2\0gpio3";
+					pins = "gpio0", "gpio1", "gpio2", "gpio3";
 				};
 			};
 };
