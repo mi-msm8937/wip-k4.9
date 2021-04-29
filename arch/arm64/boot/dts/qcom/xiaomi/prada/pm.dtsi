@@ -1,0 +1,64 @@
+
+&pmi8950_pwm {
+	status = "okay";
+	qcom,channel-id = <0x2>;
+	qcom,force-pwm-size = <0x9>;
+	qcom,mode-select = <0x0>;
+	qcom,ramp-index = <0x0>;
+	qcom,period = <0x1a>;
+	qcom,pwm {
+		qcom,duty = <0xd>;
+		label = "pwm";
+	};
+};
+
+&spmi_bus {
+	qcom,pm8937@0 {
+		qcom,power-on@800 {
+			qcom,store-hard-reset-reason;
+			qcom,pon_1 {		
+				qcom,s1-timer = < 0x1a40 >;
+				qcom,s2-timer = < 0x00 >;
+				qcom,s2-type = < 0x07 >;
+				qcom,support-reset = < 0x01 >;
+			};
+		};
+	};
+};
+
+&pmi8950_gpios {
+	gpio@c000 {
+		qcom,invert = < 0x00 >;
+		qcom,master-en = < 0x01 >;
+		qcom,mode = < 0x01 >;
+		qcom,out-strength = < 0x01 >;
+		qcom,out-type = < 0x00 >;
+		qcom,pin-num = < 0x01 >;
+		qcom,pull = < 0x05 >;
+		qcom,src-sel = < 0x00 >;
+		qcom,vin-sel = < 0x00 >;
+		reg = < 0xc000 0x100 >;
+		status = "okay";
+	};
+};
+
+&qpnp_smbcharger {
+	qcom,iterm-ma = <0xc8>;
+	qcom,float-voltage-mv = <0x1130>;
+	qcom,fastchg-current-comp = <0x4b0>;
+	qcom,float-voltage-comp = <0xb>;
+};
+
+&qpnp_fg {
+	qcom,resume-soc = <0x63>;
+	qcom,hold-soc-while-full;
+	qcom,warm-bat-decidegc = <0x1c2>;
+	qcom,cool-bat-decidegc = <0x64>;
+	qcom,hot-bat-decidegc = <0x258>;
+	qcom,cold-bat-decidegc = <0x0>;
+	qcom,fg-iterm-ma = <0xfa>;
+	qcom,fg-chg-iterm-ma = <0xc8>;
+	qcom,fg-vbat-estimate-diff-mv = <0xc8>;
+	qcom,fg-delta-soc = <0x1>;
+};
+

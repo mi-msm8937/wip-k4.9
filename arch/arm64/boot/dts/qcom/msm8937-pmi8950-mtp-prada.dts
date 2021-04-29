@@ -29,3 +29,12 @@
 	xiaomi,series = "landtoni";
 	xiaomi,device = "prada";
 };
+
+&vendor {
+	/delete-node/ qcom,battery-data;
+	mtp_batterydata: qcom,battery-data {
+		qcom,batt-id-range-pct = <15>;
+		#include "xiaomi/prada/battery/batterydata-qrd-coslight-4000mah.dtsi"
+		#include "xiaomi/prada/battery/batterydata-qrd-scud-4000mah.dtsi"
+	};
+};
