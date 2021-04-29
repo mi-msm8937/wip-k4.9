@@ -15,6 +15,13 @@ config MACH_XIAOMI_ROVA
 	help
 	  Support for Xiaomi Redmi 4A / 5A (Unified).
 
+config MACH_XIAOMI_PRADA
+	bool "Xiaomi Redmi 4"
+	depends on MACH_XIAOMI
+	depends on ARCH_MSM8937
+	help
+	  Support for Xiaomi Redmi 4.
+
 config MACH_XIAOMI_SANTONI
 	bool "Xiaomi Redmi 4X"
 	depends on MACH_XIAOMI
