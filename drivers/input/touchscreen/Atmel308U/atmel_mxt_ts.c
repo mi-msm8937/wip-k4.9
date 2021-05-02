@@ -33,6 +33,7 @@
 #include <linux/fb.h>
 #endif
 
+extern bool xiaomi_ts_probed;
 static u8 TP_Maker, LCD_Maker, Panel_Ink;
 static u8 Fw_Version[3];
 u8 Panel_ID;
@@ -6032,7 +6033,10 @@ static int mxt_probe(struct i2c_client *client,
 	struct mxt_data *data;
 	int error;
 	unsigned char val;
-
+	
+	if (xiaomi_ts_probed)
+		return -ENODEV;
+	
 	CTP_DEBUG("step 1: parse dts. ");
 	if (client->dev.of_node) {
 		pdata = devm_kzalloc(&client->dev,
@@ -6217,6 +6221,7 @@ static int mxt_probe(struct i2c_client *client,
 #if CTP_PROC_INTERFACE
 	create_ctp_proc();
 #endif
+	xiaomi_ts_probed = true;
 	CTP_DEBUG("Atmel Probe done");
 	return 0;
 
@@ -6293,6 +6298,8 @@ static int mxt_remove(struct i2c_client *client)
 
 	kfree(data);
 	data = NULL;
+	
+	xiaomi_ts_probed = false;
 
 	return 0;
 }
