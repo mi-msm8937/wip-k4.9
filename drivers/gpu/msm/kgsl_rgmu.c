@@ -121,8 +121,8 @@ static inline int rgmu_clk_set_rate(struct clk *grp_clk, unsigned int freq)
 	int ret = clk_set_rate(grp_clk, freq);
 
 	if (ret)
-		pr_err("%s set freq %d failed:%d\n",
-				__clk_get_name(grp_clk), freq, ret);
+		pr_err("set freq %d failed:%d\n",
+				freq, ret);
 
 	return ret;
 }
