@@ -64,7 +64,7 @@ struct ipa_qdss_conn_out_params {
 	phys_addr_t ipa_rx_db_pa;
 };
 
-#if defined CONFIG_IPA3
+#if defined(CONFIG_IPA3) || defined(CONFIG_IPA)
 
 /**
  * ipa_qdss_conn_pipes - Client should call this
