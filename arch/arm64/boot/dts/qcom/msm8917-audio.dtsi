@@ -325,9 +325,6 @@
 	wcd9335: tasha_codec {
 		status = "disabled";
 		compatible = "qcom,tasha-slim-pgd";
-		clock-names = "wcd_clk", "wcd_native_clk";
-		clocks = <&clock_audio clk_audio_pmi_clk>,
-			<&clock_audio clk_audio_ap_clk2>;
 
 		qcom,cdc-reset-gpio = <&tlmm 68 0>;
 
