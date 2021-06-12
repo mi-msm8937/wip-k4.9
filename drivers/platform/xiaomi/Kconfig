@@ -1,0 +1,11 @@
+config MACH_XIAOMI_SDM439
+	bool "Xiaomi"
+	depends on ARCH_SDM439
+
+config MACH_XIAOMI_PINE
+	bool "Xiaomi Redmi 7A"
+	depends on MACH_XIAOMI_SDM439
+
+config MACH_XIAOMI_OLIVES
+	bool "Xiaomi Redmi 8 Series"
+	depends on MACH_XIAOMI_SDM439
