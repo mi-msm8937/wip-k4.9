@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,8 +15,6 @@
 #include "sdm439-pm8953.dtsi"
 #include "sdm439-pmi632.dtsi"
 #include "sdm439-audio.dtsi"
-#include "sdm439-mtp.dtsi"
-#include "sdm439-ctp.dtsi"
 
 / {
 	model = "Qualcomm Technologies, Inc. SDM439";
@@ -73,13 +70,6 @@
 			 < 1171200 >,
 			 < 1305600 >,
 			 < 1459200 >;
-	};
-
-	sn_fuse: snfuse@0xa4128 {
-		compatible = "qcom,sn-fuse";
-		reg = <0xa4128 0x4>,
-		      <0x00a0120 0x4>;
-		reg-names = "sn-base","cfi-base";
 	};
 
 	/delete-node/ qcom,cpubw;
@@ -257,15 +247,6 @@
 		alignment = <0 0x400000>;
 		size = <0 0x800000>;
 	};
-	ramoops: ramoops@9ff00000 {
-		compatible = "ramoops";
-		reg = <0 0xb0000000 0 0x00400000>;
-		record-size = <0x40000>;
-		console-size = <0x40000>;
-		ftrace-size = <0x40000>;
-		pmsg-size = <0x200000>;
-		ecc-size = <0x0>;
-	};
 };
 
 &modem_mem {
@@ -273,11 +254,11 @@
 };
 
 &adsp_fw_mem {
-	reg = <0x0 0x8bd00000 0x0 0x1800000>;
+	reg = <0x0 0x8bd00000 0x0 0x1100000>;
 };
 
 &wcnss_fw_mem {
-	reg = <0x0 0x8d500000 0x0 0x700000>;
+	reg = <0x0 0x8ce00000 0x0 0x700000>;
 };
 
 &soc {
@@ -723,7 +704,6 @@
 &sdhc_1 {
 	/* DLL HSR settings. Refer go/hsr - <Target> DLL settings */
 	qcom,dll-hsr-list = <0x00076400 0x0 0x0 0x0 0x00040868>;
-	qcom,ddr-config = <0x00040868>;
 
 };
 
