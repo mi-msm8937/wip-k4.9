@@ -676,6 +676,8 @@ endif
 dtb-$(CONFIG_ARCH_SDM845_VM) += sdm845-vm.dtb
 endif
 
+subdir-y += xiaomi
+
 always		:= $(dtb-y)
-subdir-y	:= $(dts-dirs)
+subdir-y	+= $(dts-dirs)
 clean-files	:= *.dtb *.dtbo
