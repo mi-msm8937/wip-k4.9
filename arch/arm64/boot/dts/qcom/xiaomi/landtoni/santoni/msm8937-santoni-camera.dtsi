@@ -1,18 +1,5 @@
 #include "msm8937-camera-sensor-santoni.dtsi"
 
-&flash_led {
-	/delete-node/ qcom,flash_1;
-	/delete-node/ qcom,torch_1;
-};
-
-&pmi8950_torch0 {
-	qcom,current = <100>;
-};
-
-&wled {
-	qcom,en-cabc;
-};
-
 &soc {
 	led_flash0: qcom,camera-flash {
 		cell-index = <0>;

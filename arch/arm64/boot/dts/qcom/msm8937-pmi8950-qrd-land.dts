@@ -15,7 +15,7 @@
 
 #include "msm8937.dtsi"
 #include "pmi8950.dtsi"
-#include "xiaomi/landtoni/common/msm8937-qrd.dtsi"
+#include "msm8937-qrd.dtsi"
 #include "msm8937-mdss-panels.dtsi"
 
 #include "xiaomi/xiaomi.dtsi"
@@ -43,8 +43,6 @@
 	};
 };
 
-&mdss_fb0 {
-  qcom,cont-splash-memory {
-          linux,contiguous-region = <0x74>;
-        };
+&cont_splash_mem {
+	reg = <0x0 0x8dd00000 0x0 0x1400000>;
 };
