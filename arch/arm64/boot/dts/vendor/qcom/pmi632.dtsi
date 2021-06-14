@@ -29,6 +29,7 @@
 			interrupt-names = "eoc-int-en-set";
 			qcom,adc-vdd-reference = <1875>;
 			#io-channel-cells = <1>;
+			#thermal-sensor-cells = <1>;
 			io-channel-ranges;
 			qcom,pmic-revid = <&pmi632_revid>;
 
