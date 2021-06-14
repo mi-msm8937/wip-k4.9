@@ -1,6 +1,5 @@
 #include "msm8937-audio.dtsi"
 #include "msm8937.dtsi"
-#include "msm8937-mdss-pll.dtsi"
 #include "msm8937-pinctrl.dtsi"
 #include "msm8937-regulator.dtsi"
 #include "pmi632.dtsi"
