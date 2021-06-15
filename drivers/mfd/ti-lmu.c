@@ -34,6 +34,8 @@ static int ti_lmu_enable_hw(struct ti_lmu *lmu, enum ti_lmu_id id)
 {
 	int ret;
 
+	pr_err("[bkl] %s enter\n", __func__);
+
 	if (gpio_is_valid(lmu->en_gpio)) {
 		ret = devm_gpio_request_one(lmu->dev, lmu->en_gpio,
 					    GPIOF_OUT_INIT_HIGH, "lmu_hwen");
@@ -53,6 +55,8 @@ static int ti_lmu_enable_hw(struct ti_lmu *lmu, enum ti_lmu_id id)
 					  LM3631_LCD_EN_MASK,
 					  LM3631_LCD_EN_MASK);
 	}
+
+	pr_err("[bkl] %s finish\n", __func__);
 
 	return 0;
 }
@@ -176,7 +180,15 @@ static int ti_lmu_probe(struct i2c_client *cl, const struct i2c_device_id *id)
 	struct regmap_config regmap_cfg;
 	struct ti_lmu *lmu;
 	int ret;
-
+	extern char *saved_command_line;
+	int bkl_id = 0;
+	char *bkl_ptr = (char *)strnstr(saved_command_line, ":bklic=", strlen(saved_command_line));
+	bkl_ptr += strlen(":bklic=");
+	bkl_id = simple_strtol(bkl_ptr, NULL, 10);
+	if (bkl_id != 1) {
+		return -ENODEV;
+	}
+	pr_err("[bkl] %s enter\n", __func__);
 	match = of_match_device(ti_lmu_of_match, dev);
 	if (!match)
 		return -ENODEV;
@@ -217,6 +229,8 @@ static int ti_lmu_probe(struct i2c_client *cl, const struct i2c_device_id *id)
 	BLOCKING_INIT_NOTIFIER_HEAD(&lmu->notifier);
 
 	i2c_set_clientdata(cl, lmu);
+
+	pr_err("[bkl] %s finish\n", __func__);
 
 	return mfd_add_devices(lmu->dev, 0, data->cells,
 			       data->num_cells, NULL, 0, NULL);
