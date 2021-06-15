@@ -250,6 +250,7 @@ static inline int mdss_get_mux_sel(void *context, unsigned int reg,
 	*val = 0;
 	return 0;
 }
+extern char *saved_command_line;
 
 int mdss_pll_resource_enable(struct mdss_pll_resources *pll_res, bool enable);
 int mdss_pll_util_resource_init(struct platform_device *pdev,
