@@ -3,6 +3,7 @@
 // We don't want that
 
 &i2c_5 {
+	qcom,disable-dma;
 	lm3697@36 {
 		compatible = "ti,lm3697";
 		reg = <0x36>;
