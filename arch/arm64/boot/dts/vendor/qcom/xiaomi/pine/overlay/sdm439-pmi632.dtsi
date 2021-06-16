@@ -5,6 +5,7 @@
 	#include "../batterydata/Peony-Default-4000mah-78kohm.dtsi"
 };
 
+/*
 &thermal_zones {
 	quiet-therm-step {
 		trips {
@@ -26,3 +27,4 @@
 		};
 	};
 };
+*/

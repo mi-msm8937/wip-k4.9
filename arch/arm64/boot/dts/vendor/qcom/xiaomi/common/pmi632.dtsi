@@ -1,3 +1,4 @@
+/*
 &pmi632_vadc {
 	/delete-node/ chan@53;
 	chan@13 {
@@ -26,6 +27,7 @@
 		qcom,thermal-node;
 	};
 };
+*/
 
 &pmi632_charger {
 	qcom,chg-term-src = <1>;
