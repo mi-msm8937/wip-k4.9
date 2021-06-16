@@ -3550,6 +3550,8 @@ static int smb5_probe(struct platform_device *pdev)
 	struct smb_charger *chg;
 	int rc = 0;
 
+	pr_err("SMB5 PROBE!!!");
+
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;

@@ -4677,6 +4677,8 @@ static int qpnp_qg_probe(struct platform_device *pdev)
 	int rc = 0, soc = 0, nom_cap_uah;
 	struct qpnp_qg *chip;
 
+	pr_err("QPNP QG PROBE!!");
+
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;
