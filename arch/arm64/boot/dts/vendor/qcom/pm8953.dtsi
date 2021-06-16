@@ -109,6 +109,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#io-channel-cells = <1>;
+			#thermal-sensor-cells = <1>;
 			io-channel-ranges;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pa_therm1_default &cas_therm_default>;
