@@ -160,6 +160,7 @@
 		qcom,regulator-type = <0>;
 		qcom,hpm-min-load = <10000>;
 		status = "okay";
+		qcom,regulator-hw-type = "pmic4-ldo";
 		pm8953_l4: regulator-l4 {
 			compatible = "qcom,rpm-smd-regulator";
 			regulator-name = "pm8953_l4";
@@ -277,6 +278,7 @@
 		qcom,regulator-type = <0>;
 		qcom,hpm-min-load = <5000>;
 		status = "okay";
+		qcom,regulator-hw-type = "pmic4-ldo";
 		pm8953_l14: regulator-l14 {
 			compatible = "qcom,rpm-smd-regulator";
 			regulator-name = "pm8953_l14";
@@ -295,6 +297,7 @@
 		qcom,regulator-type = <0>;
 		qcom,hpm-min-load = <5000>;
 		status = "okay";
+		qcom,regulator-hw-type = "pmic4-ldo";
 		pm8953_l15: regulator-l15 {
 			compatible = "qcom,rpm-smd-regulator";
 			regulator-name = "pm8953_l15";
