@@ -792,22 +792,27 @@ static int smb5_parse_dt(struct smb5 *chip)
 		return -EINVAL;
 	}
 
+	pr_err("smb5_parse_dt_voltages");
 	rc = smb5_parse_dt_voltages(chip, node);
 	if (rc < 0)
 		return rc;
 
+	pr_err("smb5_parse_dt_currents");
 	rc = smb5_parse_dt_currents(chip, node);
 	if (rc < 0)
 		return rc;
 
+	pr_err("smb5_parse_dt_adc_channels");
 	rc = smb5_parse_dt_adc_channels(chg);
 	if (rc < 0)
 		return rc;
 
+	pr_err("smb5_parse_dt_misc");
 	rc = smb5_parse_dt_misc(chip, node);
 	if (rc < 0)
 		return rc;
 
+	pr_err("smb5_parse_sdam");
 	rc = smb5_parse_sdam(chip, node);
 	if (rc < 0)
 		return rc;
