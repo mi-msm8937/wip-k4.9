@@ -314,6 +314,8 @@ msm_otg_dbg_log_event(struct usb_phy *phy, char *event, int d1, int d2)
 	unsigned long long t;
 	unsigned long nanosec;
 
+	pr_info("%s %d %d\n", event, d1, d2);
+
 	if (!enable_dbg_log)
 		return;
 
@@ -2558,9 +2560,11 @@ static void msm_chg_detect_work(struct work_struct *w)
 
 	switch (motg->chg_state) {
 	case USB_CHG_STATE_UNDEFINED:
+		pr_info("USB_CHG_STATE_UNDEFINED");
 		pm_runtime_get_sync(phy->dev);
 		msm_chg_block_on(motg);
 	case USB_CHG_STATE_IN_PROGRESS:
+		pr_info("USB_CHG_STATE_IN_PROGRESS");
 		if (!motg->vbus_state) {
 			motg->chg_state = USB_CHG_STATE_UNDEFINED;
 			motg->chg_type = USB_INVALID_CHARGER;
@@ -2575,6 +2579,7 @@ static void msm_chg_detect_work(struct work_struct *w)
 		delay = MSM_CHG_DCD_POLL_TIME;
 		break;
 	case USB_CHG_STATE_WAIT_FOR_DCD:
+		pr_info("USB_CHG_STATE_WAIT_FOR_DCD");
 		if (!motg->vbus_state) {
 			motg->chg_state = USB_CHG_STATE_IN_PROGRESS;
 			break;
@@ -2597,6 +2602,7 @@ static void msm_chg_detect_work(struct work_struct *w)
 		}
 		break;
 	case USB_CHG_STATE_DCD_DONE:
+		pr_info("USB_CHG_STATE_DCD_DONE");
 		if (!motg->vbus_state) {
 			motg->chg_state = USB_CHG_STATE_IN_PROGRESS;
 			break;
@@ -2626,6 +2632,7 @@ static void msm_chg_detect_work(struct work_struct *w)
 		}
 		break;
 	case USB_CHG_STATE_PRIMARY_DONE:
+		pr_info("USB_CHG_STATE_PRIMARY_DONE");
 		if (!motg->vbus_state) {
 			motg->chg_state = USB_CHG_STATE_IN_PROGRESS;
 			break;
@@ -2639,8 +2646,10 @@ static void msm_chg_detect_work(struct work_struct *w)
 		motg->chg_state = USB_CHG_STATE_SECONDARY_DONE;
 		/* fall through */
 	case USB_CHG_STATE_SECONDARY_DONE:
+		pr_info("USB_CHG_STATE_SECONDARY_DONE");
 		motg->chg_state = USB_CHG_STATE_DETECTED;
 	case USB_CHG_STATE_DETECTED:
+		pr_info("USB_CHG_STATE_DETECTED");
 		if (!motg->vbus_state) {
 			motg->chg_state = USB_CHG_STATE_IN_PROGRESS;
 			break;
@@ -2666,6 +2675,7 @@ static void msm_chg_detect_work(struct work_struct *w)
 		motg->chg_state = USB_CHG_STATE_QUEUE_SM_WORK;
 		break;
 	case USB_CHG_STATE_QUEUE_SM_WORK:
+		pr_info("USB_CHG_STATE_QUEUE_SM_WORK");
 		if (!motg->vbus_state) {
 			pm_runtime_get_sync(phy->dev);
 			/* Turn off VDP_SRC if charger is DCP type */
@@ -3381,6 +3391,7 @@ static int msm_otg_dpdm_regulator_enable(struct regulator_dev *rdev)
 		else
 			msm_otg_dbg_log_event(&motg->phy, "NonDrv err",
 					      motg->rm_pulldown, 0);
+			pr_err("phy->otg->state = %d", phy->otg->state);
 	}
 
 	return ret;
