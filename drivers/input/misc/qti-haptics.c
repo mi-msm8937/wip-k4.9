@@ -1145,6 +1145,14 @@ static int qti_haptics_hw_init(struct qti_hap_chip *chip)
 	u8 addr, val, mask;
 	int rc = 0;
 
+	/*
+	 * Config play rate: this is the resonance period for LRA,
+	 * or the play duration of each waveform sample for ERM.
+	 */
+	rc = qti_haptics_config_play_rate_us(chip, config->play_rate_us);
+	if (rc < 0)
+		return rc;
+
 	if (config->act_type == ACT_REGULATOR)
 		return 0;
 
@@ -1186,14 +1194,6 @@ static int qti_haptics_hw_init(struct qti_hap_chip *chip)
 		dev_err(chip->dev, "write ZX_CFG failed, rc=%d\n", rc);
 		return rc;
 	}
-
-	/*
-	 * Config play rate: this is the resonance period for LRA,
-	 * or the play duration of each waveform sample for ERM.
-	 */
-	rc = qti_haptics_config_play_rate_us(chip, config->play_rate_us);
-	if (rc < 0)
-		return rc;
 
 	/* Set external waveform source if it's used */
 	if (config->use_ext_wf_src) {
