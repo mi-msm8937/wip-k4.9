@@ -23,6 +23,8 @@
 #include <linux/of_device.h>
 #include <linux/regmap.h>
 #include <linux/workqueue.h>
+#include <linux/regulator/driver.h>
+#include <linux/regulator/stub-regulator.h>
 
 /* Vibrator-LDO register definitions */
 #define QPNP_VIB_LDO_REG_STATUS1	0x08
@@ -48,6 +50,8 @@
 #define QPNP_VIB_OVERDRIVE_PLAY_MS	30
 
 struct vib_ldo_chip {
+	struct regulator_desc	rdesc;
+	struct regulator_dev	*rdev;
 	struct led_classdev	cdev;
 	struct regmap		*regmap;
 	struct mutex		lock;
@@ -62,6 +66,7 @@ struct vib_ldo_chip {
 	int			ldo_uV;
 	int			state;
 	u64			vib_play_ms;
+	bool			regulator_enabled;
 	bool			vib_enabled;
 	bool			disable_overdrive;
 };
@@ -458,6 +463,150 @@ static int qpnp_vibrator_ldo_suspend(struct device *dev)
 static SIMPLE_DEV_PM_OPS(qpnp_vibrator_ldo_pm_ops, qpnp_vibrator_ldo_suspend,
 			NULL);
 
+static int qpnp_vib_ldo_regulator_set_voltage(struct regulator_dev *rdev, int min_uV,
+				  int max_uV, unsigned *selector)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+	int data;
+
+	data = max_uV;
+	/* check against vibrator ldo min/max voltage limits */
+	data = min(data, QPNP_VIB_LDO_VMAX_UV);
+	data = max(data, QPNP_VIB_LDO_VMIN_UV);
+
+	mutex_lock(&chip->lock);
+	chip->vmax_uV = data;
+	mutex_unlock(&chip->lock);
+
+	return 0;
+}
+
+static int qpnp_vib_ldo_regulator_get_voltage(struct regulator_dev *rdev)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+
+	return chip->vmax_uV;
+}
+
+static unsigned int qpnp_vib_ldo_regulator_get_mode(struct regulator_dev *rdev)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+
+	return chip->vib_enabled ? REGULATOR_MODE_NORMAL : REGULATOR_MODE_IDLE;
+}
+
+static int qpnp_vib_ldo_regulator_set_mode(struct regulator_dev *rdev,
+				   unsigned int mode)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+	int ret;
+
+	if (mode == REGULATOR_MODE_NORMAL) {
+		if (!chip->vib_enabled)
+			ret = qpnp_vibrator_play_on(chip);
+
+		if (ret == 0)
+			hrtimer_start(&chip->stop_timer,
+				      ms_to_ktime(chip->vib_play_ms),
+				      HRTIMER_MODE_REL);
+	} else if (mode == REGULATOR_MODE_IDLE) {
+		if (!chip->disable_overdrive) {
+			hrtimer_cancel(&chip->overdrive_timer);
+			cancel_work_sync(&chip->overdrive_work);
+		}
+		qpnp_vib_ldo_enable(chip, false);
+	} else {
+		dev_err(&rdev->dev, "%s: invalid mode requested %u\n",
+							__func__, mode);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static unsigned int qpnp_vib_ldo_regulator_get_optimum_mode(struct regulator_dev *rdev,
+		int input_uV, int output_uV, int load_uA)
+{
+	return REGULATOR_MODE_IDLE;
+}
+
+static int qpnp_vib_ldo_regulator_enable(struct regulator_dev *rdev)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+
+	chip->regulator_enabled = true;
+	return 0;
+}
+
+static int qpnp_vib_ldo_regulator_disable(struct regulator_dev *rdev)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+
+	chip->regulator_enabled = false;
+	return 0;
+}
+
+static int qpnp_vib_ldo_regulator_is_enabled(struct regulator_dev *rdev)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+
+	return chip->regulator_enabled;
+}
+
+/* Real regulator operations. */
+static struct regulator_ops qpnp_vib_ldo_regulator_ops = {
+	.enable			= qpnp_vib_ldo_regulator_enable,
+	.disable		= qpnp_vib_ldo_regulator_disable,
+	.is_enabled		= qpnp_vib_ldo_regulator_is_enabled,
+	.set_voltage		= qpnp_vib_ldo_regulator_set_voltage,
+	.get_voltage		= qpnp_vib_ldo_regulator_get_voltage,
+	.set_mode		= qpnp_vib_ldo_regulator_set_mode,
+	.get_mode		= qpnp_vib_ldo_regulator_get_mode,
+	.get_optimum_mode	= qpnp_vib_ldo_regulator_get_optimum_mode,
+};
+
+static int qpnp_vib_ldo_regulator_init(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct vib_ldo_chip *chip = dev_get_drvdata(&pdev->dev);
+	struct regulator_config cfg = {};
+	struct regulator_init_data *init_data;
+
+	init_data = devm_kzalloc(dev, sizeof(*init_data), GFP_KERNEL);
+	if (!init_data)
+		return -ENOMEM;
+
+	init_data->constraints.valid_ops_mask
+		|= REGULATOR_CHANGE_STATUS;
+	init_data->constraints.valid_ops_mask
+		|= REGULATOR_CHANGE_VOLTAGE;
+	init_data->constraints.valid_ops_mask
+		|= REGULATOR_CHANGE_MODE | REGULATOR_CHANGE_DRMS;
+	init_data->constraints.valid_modes_mask
+		= REGULATOR_MODE_NORMAL | REGULATOR_MODE_IDLE;
+	chip->rdesc.owner = THIS_MODULE;
+	chip->rdesc.type = REGULATOR_VOLTAGE;
+	chip->rdesc.ops = &qpnp_vib_ldo_regulator_ops;
+	chip->rdesc.name = kbasename(dev->of_node->full_name);
+
+	cfg.dev = dev;
+	cfg.init_data = init_data;
+	cfg.driver_data = chip;
+	cfg.of_node = dev->of_node;
+
+	chip->rdev = devm_regulator_register(dev, &chip->rdesc, &cfg);
+	if (IS_ERR(chip->rdev))
+		return PTR_ERR(chip->rdev);
+
+	return 0;
+}
+
+static void qpnp_vib_ldo_regulator_cleanup(struct vib_ldo_chip *chip)
+{
+	if (chip && chip->rdev)
+		regulator_unregister(chip->rdev);
+}
+
 static int qpnp_vibrator_ldo_probe(struct platform_device *pdev)
 {
 	struct device_node *of_node = pdev->dev.of_node;
@@ -519,6 +668,10 @@ static int qpnp_vibrator_ldo_probe(struct platform_device *pdev)
 		}
 	}
 
+	ret = qpnp_vib_ldo_regulator_init(pdev);
+	if (ret < 0)
+		pr_err("qpnp_vib_ldo_regulator_init failed! ret=%d\n", ret);
+
 	pr_info("Vibrator LDO successfully registered: uV = %d, overdrive = %s\n",
 		chip->vmax_uV,
 		chip->disable_overdrive ? "disabled" : "enabled");
@@ -538,6 +691,7 @@ static int qpnp_vibrator_ldo_remove(struct platform_device *pdev)
 {
 	struct vib_ldo_chip *chip = dev_get_drvdata(&pdev->dev);
 
+	qpnp_vib_ldo_regulator_cleanup(chip);
 	if (!chip->disable_overdrive) {
 		hrtimer_cancel(&chip->overdrive_timer);
 		cancel_work_sync(&chip->overdrive_work);
