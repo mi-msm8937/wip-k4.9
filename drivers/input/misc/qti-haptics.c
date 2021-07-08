@@ -34,6 +34,7 @@
 enum actutor_type {
 	ACT_LRA,
 	ACT_ERM,
+	ACT_REGULATOR,
 };
 
 enum lra_res_sig_shape {
@@ -277,6 +278,9 @@ static int qti_haptics_read(struct qti_hap_chip *chip,
 	int rc = 0;
 	unsigned long flags;
 
+	if (chip->config.act_type == ACT_REGULATOR)
+		return 0;
+
 	spin_lock_irqsave(&chip->bus_lock, flags);
 
 	rc = regmap_bulk_read(chip->regmap, chip->reg_base + addr, val, len);
@@ -293,6 +297,9 @@ static int qti_haptics_write(struct qti_hap_chip *chip,
 {
 	int rc = 0, i;
 	unsigned long flags;
+
+	if (chip->config.act_type == ACT_REGULATOR)
+		return 0;
 
 	spin_lock_irqsave(&chip->bus_lock, flags);
 	if (is_secure(addr)) {
@@ -340,6 +347,9 @@ static int qti_haptics_masked_write(struct qti_hap_chip *chip, u8 addr,
 {
 	int rc;
 	unsigned long flags;
+
+	if (chip->config.act_type == ACT_REGULATOR)
+		return 0;
 
 	spin_lock_irqsave(&chip->bus_lock, flags);
 	if (is_secure(addr)) {
@@ -601,6 +611,9 @@ static int qti_haptics_lra_auto_res_enable(struct qti_hap_chip *chip, bool en)
 {
 	int rc;
 	u8 addr, val, mask;
+
+	if (chip->config.act_type == ACT_REGULATOR)
+		return 0;
 
 	addr = REG_HAP_AUTO_RES_CTRL;
 	mask = HAP_AUTO_RES_EN_BIT;
@@ -948,6 +961,7 @@ static int qti_haptics_upload_effect(struct input_dev *dev,
 		return -EINVAL;
 	}
 
+	if (config->act_type != ACT_REGULATOR) {
 	if (chip->vdd_supply && !chip->vdd_enabled) {
 		rc = regulator_enable(chip->vdd_supply);
 		if (rc < 0) {
@@ -956,6 +970,7 @@ static int qti_haptics_upload_effect(struct input_dev *dev,
 			return rc;
 		}
 		chip->vdd_enabled = true;
+	}
 	}
 
 	return 0;
@@ -980,18 +995,22 @@ static int qti_haptics_playback(struct input_dev *dev, int effect_id, int val)
 			return rc;
 
 		if (play->playing_pattern) {
+			if (chip->config.act_type != ACT_REGULATOR) {
 			if (!chip->play_irq_en) {
 				enable_irq(chip->play_irq);
 				chip->play_irq_en = true;
+			}
 			}
 			/* Toggle PLAY when playing pattern */
 			rc = qti_haptics_play(chip, false);
 			if (rc < 0)
 				return rc;
 		} else {
+			if (chip->config.act_type != ACT_REGULATOR) {
 			if (chip->play_irq_en) {
 				disable_irq_nosync(chip->play_irq);
 				chip->play_irq_en = false;
+			}
 			}
 			secs = play->length_us / USEC_PER_SEC;
 			nsecs = (play->length_us % USEC_PER_SEC) *
@@ -1005,9 +1024,11 @@ static int qti_haptics_playback(struct input_dev *dev, int effect_id, int val)
 		if (rc < 0)
 			return rc;
 
+		if (chip->config.act_type != ACT_REGULATOR) {
 		if (chip->play_irq_en) {
 			disable_irq_nosync(chip->play_irq);
 			chip->play_irq_en = false;
+		}
 		}
 	}
 
@@ -1019,6 +1040,7 @@ static int qti_haptics_erase(struct input_dev *dev, int effect_id)
 	struct qti_hap_chip *chip = input_get_drvdata(dev);
 	int delay_us, rc = 0;
 
+	if (chip->config.act_type != ACT_REGULATOR) {
 	if (chip->vdd_supply && chip->vdd_enabled) {
 		rc = regulator_disable(chip->vdd_supply);
 		if (rc < 0) {
@@ -1027,6 +1049,7 @@ static int qti_haptics_erase(struct input_dev *dev, int effect_id)
 			return rc;
 		}
 		chip->vdd_enabled = false;
+	}
 	}
 
 	rc = qti_haptics_clear_settings(chip);
@@ -1097,6 +1120,9 @@ static int qti_haptics_hw_init(struct qti_hap_chip *chip)
 	struct qti_hap_config *config = &chip->config;
 	u8 addr, val, mask;
 	int rc = 0;
+
+	if (config->act_type == ACT_REGULATOR)
+		return 0;
 
 	/* Config actuator type */
 	addr = REG_HAP_CFG1;
@@ -1263,6 +1289,23 @@ static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 	const char *str;
 	int rc = 0, tmp, i = 0, j, m;
 
+	config->act_type = ACT_LRA;
+	rc = of_property_read_string(node, "qcom,actuator-type", &str);
+	if (!rc) {
+		if (strcmp(str, "erm") == 0) {
+			config->act_type = ACT_ERM;
+		} else if (strcmp(str, "lra") == 0) {
+			config->act_type = ACT_LRA;
+		} else if (strcmp(str, "regulator")) {
+			config->act_type = ACT_REGULATOR;
+		} else {
+			dev_err(chip->dev, "Invalid actuator type: %s\n",
+					str);
+			return -EINVAL;
+		}
+	}
+
+	if (config->act_type != ACT_REGULATOR) {
 	rc = of_property_read_u32(node, "reg", &tmp);
 	if (rc < 0) {
 		dev_err(chip->dev, "Failed to reg base, rc=%d\n", rc);
@@ -1281,19 +1324,6 @@ static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 		dev_err(chip->dev, "Failed to get hap-play-irq\n");
 		return chip->play_irq;
 	}
-
-	config->act_type = ACT_LRA;
-	rc = of_property_read_string(node, "qcom,actuator-type", &str);
-	if (!rc) {
-		if (strcmp(str, "erm") == 0) {
-			config->act_type = ACT_ERM;
-		} else if (strcmp(str, "lra") == 0) {
-			config->act_type = ACT_LRA;
-		} else {
-			dev_err(chip->dev, "Invalid actuator type: %s\n",
-					str);
-			return -EINVAL;
-		}
 	}
 
 	config->vmax_mv = HAP_VMAX_MV_DEFAULT;
@@ -1333,6 +1363,7 @@ static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 		config->use_ext_wf_src = true;
 	}
 
+	if (config->act_type != ACT_REGULATOR) {
 	if (of_find_property(node, "vdd-supply", NULL)) {
 		chip->vdd_supply = devm_regulator_get(chip->dev, "vdd");
 		if (IS_ERR(chip->vdd_supply)) {
@@ -1341,6 +1372,7 @@ static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 				dev_err(chip->dev, "Failed to get vdd regulator");
 			return rc;
 		}
+	}
 	}
 
 	if (config->act_type == ACT_LRA) {
@@ -1947,6 +1979,7 @@ static int qti_haptics_probe(struct platform_device *pdev)
 
 	spin_lock_init(&chip->bus_lock);
 
+	if (chip->config.act_type != ACT_REGULATOR) {
 	rc = qti_haptics_hw_init(chip);
 	if (rc < 0) {
 		dev_err(chip->dev, "parse device-tree failed, rc=%d\n", rc);
@@ -1976,6 +2009,7 @@ static int qti_haptics_probe(struct platform_device *pdev)
 	rc = qpnp_misc_twm_notifier_register(&chip->twm_nb);
 	if (rc < 0)
 		pr_err("Failed to register twm_notifier_cb rc=%d\n", rc);
+	}
 
 	hrtimer_init(&chip->stop_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	chip->stop_timer.function = qti_hap_stop_timer;
@@ -2027,6 +2061,7 @@ static int qti_haptics_probe(struct platform_device *pdev)
 
 destroy_ff:
 	input_ff_destroy(chip->input_dev);
+	if (chip->config.act_type != ACT_REGULATOR)
 	qpnp_misc_twm_notifier_unregister(&chip->twm_nb);
 	return rc;
 }
@@ -2039,7 +2074,9 @@ static int qti_haptics_remove(struct platform_device *pdev)
 	debugfs_remove_recursive(chip->hap_debugfs);
 #endif
 	input_ff_destroy(chip->input_dev);
+	if (chip->config.act_type != ACT_REGULATOR) {
 	qpnp_misc_twm_notifier_unregister(&chip->twm_nb);
+	}
 	dev_set_drvdata(chip->dev, NULL);
 
 	return 0;
@@ -2049,6 +2086,9 @@ static void qti_haptics_shutdown(struct platform_device *pdev)
 {
 	struct qti_hap_chip *chip = dev_get_drvdata(&pdev->dev);
 	int rc;
+
+	if (chip->config.act_type == ACT_REGULATOR)
+		return;
 
 	dev_dbg(chip->dev, "Shutdown!\n");
 
