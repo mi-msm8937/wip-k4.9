@@ -1330,11 +1330,17 @@ static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 	}
 
 	if (config->act_type == ACT_REGULATOR) {
-		chip->vib_regulator = devm_regulator_get(chip->dev, "vib_regulator");
-		if (IS_ERR(chip->vib_regulator)) {
-			dev_err(chip->dev, "Failed to get vib_regulator regulator, deferring probe");
-			rc = -EPROBE_DEFER;
-			return rc;
+		rc = of_property_read_string(node, "qcom,actuator-regulator-name", &str);
+		if (!rc) {
+			chip->vib_regulator = devm_regulator_get(chip->dev, str);
+			if (IS_ERR(chip->vib_regulator)) {
+				dev_err(chip->dev, "Failed to get regulator actuator, deferring probe");
+				rc = -EPROBE_DEFER;
+				return rc;
+			}
+		} else {
+			dev_err(chip->dev, "Error reading regulator actuator name, rc=%d\n", rc);
+			return -EINVAL;
 		}
 	}
 
