@@ -1320,7 +1320,7 @@ static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 			config->act_type = ACT_ERM;
 		} else if (strcmp(str, "lra") == 0) {
 			config->act_type = ACT_LRA;
-		} else if (strcmp(str, "regulator")) {
+		} else if (strcmp(str, "regulator") == 0) {
 			config->act_type = ACT_REGULATOR;
 		} else {
 			dev_err(chip->dev, "Invalid actuator type: %s\n",
