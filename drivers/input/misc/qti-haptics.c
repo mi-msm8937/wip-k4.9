@@ -222,6 +222,7 @@ struct qti_hap_chip {
 	struct qti_hap_effect		*predefined;
 	struct qti_hap_effect		constant;
 	struct regulator		*vdd_supply;
+	struct regulator		*vib_regulator;
 	struct hrtimer			stop_timer;
 	struct hrtimer			hap_disable_timer;
 	struct dentry			*hap_debugfs;
@@ -492,6 +493,13 @@ static int qti_haptics_play(struct qti_hap_chip *chip, bool play)
 	int rc = 0;
 	u8 val = play ? HAP_PLAY_BIT : 0;
 
+	if (chip->config.act_type == ACT_REGULATOR) {
+		rc = regulator_set_mode(chip->vib_regulator, true);
+		if (rc)
+			pr_err("playing through regulator failed, rc=%d\n", rc);
+		return rc;
+	}
+
 	rc = qti_haptics_write(chip,
 			REG_HAP_PLAY, &val, 1);
 	if (rc < 0)
@@ -520,6 +528,13 @@ static int qti_haptics_config_vmax(struct qti_hap_chip *chip, int vmax_mv)
 {
 	u8 addr, mask, val;
 	int rc;
+
+	if (chip->config.act_type == ACT_REGULATOR) {
+		rc = regulator_set_voltage(chip->vib_regulator, vmax_mv * 1000, vmax_mv * 1000);
+		if (rc)
+			pr_err("configuring vmax mv failed, rc=%d\n", rc);
+		return rc;
+	}
 
 	addr = REG_HAP_VMAX_CFG;
 	mask = HAP_VMAX_MV_MASK;
@@ -1307,6 +1322,15 @@ static int qti_haptics_parse_dt(struct qti_hap_chip *chip)
 		}
 	}
 
+	if (config->act_type == ACT_REGULATOR) {
+		chip->vib_regulator = devm_regulator_get(chip->dev, "vib_regulator");
+		if (IS_ERR(chip->vib_regulator)) {
+			dev_err(chip->dev, "Failed to get vib_regulator regulator, deferring probe");
+			rc = -EPROBE_DEFER;
+			return rc;
+		}
+	}
+
 	if (config->act_type != ACT_REGULATOR) {
 	rc = of_property_read_u32(node, "reg", &tmp);
 	if (rc < 0) {
@@ -1967,16 +1991,26 @@ static int qti_haptics_probe(struct platform_device *pdev)
 
 	chip->pdev = pdev;
 	chip->dev = &pdev->dev;
-	chip->regmap = dev_get_regmap(chip->dev->parent, NULL);
-	if (!chip->regmap) {
-		dev_err(chip->dev, "Failed to get regmap handle\n");
-		return -ENXIO;
-	}
 
 	rc = qti_haptics_parse_dt(chip);
 	if (rc < 0) {
 		dev_err(chip->dev, "parse device-tree failed, rc=%d\n", rc);
 		return rc;
+	}
+
+	if (chip->config.act_type == ACT_REGULATOR) {
+		rc = regulator_enable(chip->vib_regulator);
+		if (rc)
+			pr_err("enabling vib_regulator failed, rc=%d\n", rc);
+		return rc;
+	}
+
+	if (chip->config.act_type != ACT_REGULATOR) {
+	chip->regmap = dev_get_regmap(chip->dev->parent, NULL);
+	if (!chip->regmap) {
+		dev_err(chip->dev, "Failed to get regmap handle\n");
+		return -ENXIO;
+	}
 	}
 
 	spin_lock_init(&chip->bus_lock);
@@ -2076,6 +2110,8 @@ static int qti_haptics_remove(struct platform_device *pdev)
 	debugfs_remove_recursive(chip->hap_debugfs);
 #endif
 	input_ff_destroy(chip->input_dev);
+	if (chip->config.act_type == ACT_REGULATOR)
+		regulator_disable(chip->vib_regulator);
 	if (chip->config.act_type != ACT_REGULATOR) {
 	qpnp_misc_twm_notifier_unregister(&chip->twm_nb);
 	}
