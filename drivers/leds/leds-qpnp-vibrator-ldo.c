@@ -463,6 +463,34 @@ static int qpnp_vibrator_ldo_suspend(struct device *dev)
 static SIMPLE_DEV_PM_OPS(qpnp_vibrator_ldo_pm_ops, qpnp_vibrator_ldo_suspend,
 			NULL);
 
+static int qpnp_vib_ldo_regulator_set_current(struct regulator_dev *rdev, int min_uA,
+				  int max_uA)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+	int data;
+
+	data = max_uA / 1000;
+
+	if (data < QPNP_VIB_MIN_PLAY_MS)
+		data = QPNP_VIB_MIN_PLAY_MS;
+
+	if (data > QPNP_VIB_MAX_PLAY_MS)
+		data = QPNP_VIB_MAX_PLAY_MS;
+
+	mutex_lock(&chip->lock);
+	chip->vib_play_ms = data;
+	mutex_unlock(&chip->lock);
+
+	return 0;
+}
+
+static int qpnp_vib_ldo_regulator_get_current(struct regulator_dev *rdev)
+{
+	struct vib_ldo_chip *chip = rdev_get_drvdata(rdev);
+
+	return chip->vib_play_ms * 1000;
+}
+
 static int qpnp_vib_ldo_regulator_set_voltage(struct regulator_dev *rdev, int min_uV,
 				  int max_uV, unsigned *selector)
 {
@@ -558,6 +586,8 @@ static struct regulator_ops qpnp_vib_ldo_regulator_ops = {
 	.enable			= qpnp_vib_ldo_regulator_enable,
 	.disable		= qpnp_vib_ldo_regulator_disable,
 	.is_enabled		= qpnp_vib_ldo_regulator_is_enabled,
+	.set_current_limit	= qpnp_vib_ldo_regulator_set_current,
+	.get_current_limit	= qpnp_vib_ldo_regulator_get_current,
 	.set_voltage		= qpnp_vib_ldo_regulator_set_voltage,
 	.get_voltage		= qpnp_vib_ldo_regulator_get_voltage,
 	.set_mode		= qpnp_vib_ldo_regulator_set_mode,
@@ -578,6 +608,8 @@ static int qpnp_vib_ldo_regulator_init(struct platform_device *pdev)
 
 	init_data->constraints.valid_ops_mask
 		|= REGULATOR_CHANGE_STATUS;
+	init_data->constraints.valid_ops_mask
+		|= REGULATOR_CHANGE_CURRENT;
 	init_data->constraints.valid_ops_mask
 		|= REGULATOR_CHANGE_VOLTAGE;
 	init_data->constraints.valid_ops_mask
