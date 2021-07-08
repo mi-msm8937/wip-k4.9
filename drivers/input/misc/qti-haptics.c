@@ -572,6 +572,13 @@ static int qti_haptics_config_play_rate_us(struct qti_hap_chip *chip,
 	u8 addr, val[2];
 	int tmp, rc;
 
+	if (chip->config.act_type == ACT_REGULATOR) {
+		rc = regulator_set_current_limit(chip->vib_regulator, play_rate_us, play_rate_us);
+		if (rc)
+			pr_err("configuring play rate us failed, rc=%d\n", rc);
+		return rc;
+	}
+
 	addr = REG_HAP_RATE_CFG1;
 	tmp = play_rate_us / HAP_PLAY_RATE_US_LSB;
 	val[0] = tmp & 0xff;
