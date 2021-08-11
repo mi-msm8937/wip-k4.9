@@ -26,3 +26,8 @@
 	/delete-property/ cam_vaf-supply;
 	/delete-property/ qcom,gpio-reset;
 };
+
+
+&i2c_2 {
+	/delete-node/ aw2013@45;
+};
