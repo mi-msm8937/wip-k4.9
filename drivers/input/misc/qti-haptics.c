@@ -1931,6 +1931,8 @@ static int qti_haptics_continue_probe(struct platform_device *pdev)
 	struct qti_hap_chip *chip = dev_get_drvdata(&pdev->dev);
 	int rc = 0;
 
+	pr_err("qti_haptics_continue_probe");
+
 	rc = qti_haptics_hw_init(chip);
 	if (rc < 0) {
 		dev_err(chip->dev, "parse device-tree failed, rc=%d\n", rc);
@@ -1979,6 +1981,8 @@ static int qti_haptics_probe(struct platform_device *pdev)
 	struct input_dev *input_dev;
 	struct ff_device *ff;
 	int rc = 0, effect_count_max;
+
+	pr_err("qti_haptics_probe");
 
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
