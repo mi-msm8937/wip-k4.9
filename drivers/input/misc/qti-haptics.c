@@ -31,6 +31,14 @@
 #include <linux/types.h>
 #include <linux/uaccess.h>
 
+enum haptic_driver_type {
+	DRV_NONE,
+	DRV_QPNP,
+	DRV_QTI,
+};
+
+int probed_haptic_driver = DRV_NONE;
+
 enum actutor_type {
 	ACT_LRA,
 	ACT_ERM,
@@ -1916,6 +1924,53 @@ cleanup:
 }
 #endif
 
+static int qti_haptics_continue_probe(struct platform_device *pdev)
+{
+	struct qti_hap_chip *chip = dev_get_drvdata(&pdev->dev);
+	int rc = 0;
+
+	rc = qti_haptics_hw_init(chip);
+	if (rc < 0) {
+		dev_err(chip->dev, "parse device-tree failed, rc=%d\n", rc);
+		return rc;
+	}
+
+	rc = devm_request_threaded_irq(chip->dev, chip->play_irq, NULL,
+			qti_haptics_play_irq_handler,
+			IRQF_ONESHOT, "hap_play_irq", chip);
+	if (rc < 0) {
+		dev_err(chip->dev, "request play-irq failed, rc=%d\n", rc);
+		return rc;
+	}
+
+	disable_irq(chip->play_irq);
+
+	rc = devm_request_threaded_irq(chip->dev, chip->sc_irq, NULL,
+			qti_haptics_sc_irq_handler,
+			IRQF_ONESHOT, "hap_sc_irq", chip);
+	if (rc < 0) {
+		dev_err(chip->dev, "request sc-irq failed, rc=%d\n", rc);
+		return rc;
+	}
+
+	rc = qpnp_misc_twm_notifier_register(&chip->twm_nb);
+	if (rc < 0)
+		pr_err("Failed to register twm_notifier_cb rc=%d\n", rc);
+
+	hrtimer_init(&chip->stop_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	hrtimer_init(&chip->hap_disable_timer, CLOCK_MONOTONIC,
+						HRTIMER_MODE_REL);
+
+#ifdef CONFIG_DEBUG_FS
+	rc = qti_haptics_add_debugfs(chip);
+	if (rc < 0)
+		dev_dbg(chip->dev, "create debugfs failed, rc=%d\n", rc);
+#endif
+
+	probed_haptic_driver = DRV_QTI;
+	return 0;
+}
+
 static int qti_haptics_probe(struct platform_device *pdev)
 {
 	struct qti_hap_chip *chip;
@@ -1947,41 +2002,12 @@ static int qti_haptics_probe(struct platform_device *pdev)
 
 	spin_lock_init(&chip->bus_lock);
 
-	rc = qti_haptics_hw_init(chip);
-	if (rc < 0) {
-		dev_err(chip->dev, "parse device-tree failed, rc=%d\n", rc);
-		return rc;
-	}
-
-	rc = devm_request_threaded_irq(chip->dev, chip->play_irq, NULL,
-			qti_haptics_play_irq_handler,
-			IRQF_ONESHOT, "hap_play_irq", chip);
-	if (rc < 0) {
-		dev_err(chip->dev, "request play-irq failed, rc=%d\n", rc);
-		return rc;
-	}
-
-	disable_irq(chip->play_irq);
 	chip->play_irq_en = false;
 
-	rc = devm_request_threaded_irq(chip->dev, chip->sc_irq, NULL,
-			qti_haptics_sc_irq_handler,
-			IRQF_ONESHOT, "hap_sc_irq", chip);
-	if (rc < 0) {
-		dev_err(chip->dev, "request sc-irq failed, rc=%d\n", rc);
-		return rc;
-	}
-
 	chip->twm_nb.notifier_call = twm_notifier_cb;
-	rc = qpnp_misc_twm_notifier_register(&chip->twm_nb);
-	if (rc < 0)
-		pr_err("Failed to register twm_notifier_cb rc=%d\n", rc);
-
-	hrtimer_init(&chip->stop_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	chip->stop_timer.function = qti_hap_stop_timer;
-	hrtimer_init(&chip->hap_disable_timer, CLOCK_MONOTONIC,
-						HRTIMER_MODE_REL);
 	chip->hap_disable_timer.function = qti_hap_disable_timer;
+	chip->stop_timer.function = qti_hap_stop_timer;
+
 	input_dev->name = "qti-haptics";
 	input_set_drvdata(input_dev, chip);
 	chip->input_dev = input_dev;
@@ -2018,16 +2044,11 @@ static int qti_haptics_probe(struct platform_device *pdev)
 	}
 
 	dev_set_drvdata(chip->dev, chip);
-#ifdef CONFIG_DEBUG_FS
-	rc = qti_haptics_add_debugfs(chip);
-	if (rc < 0)
-		dev_dbg(chip->dev, "create debugfs failed, rc=%d\n", rc);
-#endif
+	qti_haptics_continue_probe(pdev);
 	return 0;
 
 destroy_ff:
 	input_ff_destroy(chip->input_dev);
-	qpnp_misc_twm_notifier_unregister(&chip->twm_nb);
 	return rc;
 }
 
@@ -2039,7 +2060,8 @@ static int qti_haptics_remove(struct platform_device *pdev)
 	debugfs_remove_recursive(chip->hap_debugfs);
 #endif
 	input_ff_destroy(chip->input_dev);
-	qpnp_misc_twm_notifier_unregister(&chip->twm_nb);
+	if (probed_haptic_driver == DRV_QTI)
+		qpnp_misc_twm_notifier_unregister(&chip->twm_nb);
 	dev_set_drvdata(chip->dev, NULL);
 
 	return 0;
