@@ -34,11 +34,6 @@
 #include <linux/delay.h>
 #endif
 
-#ifdef CONFIG_MACH_XIAOMI
-#include <linux/xiaomi_series.h>
-extern int xiaomi_series_read(void);
-#endif
-
 #define QPNP_LPG_DRIVER_NAME	"qcom,qpnp-pwm"
 #define QPNP_LPG_CHANNEL_BASE	"qpnp-lpg-channel-base"
 #define QPNP_LPG_LUT_BASE	"qpnp-lpg-lut-base"
@@ -2275,8 +2270,8 @@ static int qpnp_parse_dt_config(struct platform_device *pdev,
 	chip->pwm_mode = mode;
 	_pwm_change_mode(chip, mode);
 #ifdef CONFIG_IR_PWM
-#ifdef CONFIG_MACH_XIAOMI_ULYSSE
-	if (xiaomi_series_read() == XIAOMI_SERIES_ULYSSE) {
+#ifdef CONFIG_MACH_XIAOMI_PRADA
+	if (true) {
 		if(chip->dtest_line!=1) {
 			_pwm_enable(chip);
 		} else {
