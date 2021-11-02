@@ -48,3 +48,13 @@
 		};
 	};
 };
+
+&soc {
+	pwm_ir {
+		compatible = "pwm-ir";
+		pwms = <&pmi8950_pwm 0 0>;
+		qcom,test-gpios = <&pmi8950_gpios 6 0>;
+		reg-id = "vdd";
+		vdd-supply = <&pm8937_l10>;
+	};
+};
