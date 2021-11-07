@@ -1644,6 +1644,10 @@ static int arm_smmu_set_pt_format(struct arm_smmu_domain *smmu_domain,
 	    arm_smmu_is_static_cb(smmu)) {
 		ret = msm_tz_set_cb_format(smmu->sec_id, cfg->cbndx);
 	}
+
+	if (ret == -EINVAL && !arm_smmu_restore_sec_cfg(smmu, cfg->cbndx))
+		return -EAGAIN;
+
 	return ret;
 }
 
@@ -1849,7 +1853,8 @@ static void arm_smmu_free_asid(struct iommu_domain *domain)
 
 static int arm_smmu_init_domain_context(struct iommu_domain *domain,
 					struct arm_smmu_device *smmu,
-					struct device *dev)
+					struct device *dev,
+					int attempt)
 {
 	int irq, start, ret = 0;
 	unsigned long ias, oas;
@@ -1925,8 +1930,13 @@ static int arm_smmu_init_domain_context(struct iommu_domain *domain,
 	if ((IS_ENABLED(CONFIG_64BIT) || cfg->fmt == ARM_SMMU_CTX_FMT_NONE) &&
 	    (smmu->features & (ARM_SMMU_FEAT_FMT_AARCH64_64K |
 			       ARM_SMMU_FEAT_FMT_AARCH64_16K |
-			       ARM_SMMU_FEAT_FMT_AARCH64_4K)))
-		cfg->fmt = ARM_SMMU_CTX_FMT_AARCH64;
+			       ARM_SMMU_FEAT_FMT_AARCH64_4K))) {
+		if (attempt)
+			dev_info(smmu->dev, "Domain for %s can't use AARCH64 format\n",
+				 dev_name(dev));
+		else
+			cfg->fmt = ARM_SMMU_CTX_FMT_AARCH64;
+	}
 
 	if (cfg->fmt == ARM_SMMU_CTX_FMT_NONE) {
 		ret = -EINVAL;
@@ -2618,6 +2628,7 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
 	struct arm_smmu_device *smmu;
 	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
 	int atomic_domain = smmu_domain->attributes & (1 << DOMAIN_ATTR_ATOMIC);
+	int attempt = 0;
 
 	if (!fwspec || fwspec->ops != &arm_smmu_ops) {
 		dev_err(dev, "cannot attach to SMMU, is it on the same bus?\n");
@@ -2642,7 +2653,10 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
 		return ret;
 
 	/* Ensure that the domain is finalised */
-	ret = arm_smmu_init_domain_context(domain, smmu, dev);
+	do {
+		ret = arm_smmu_init_domain_context(domain, smmu, dev, attempt);
+	} while (ret == -EAGAIN && !attempt++);
+
 	if (ret < 0)
 		goto out_power_off;
 
