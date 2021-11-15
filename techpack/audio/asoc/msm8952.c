@@ -63,7 +63,8 @@ static atomic_t quin_mi2s_clk_ref;
 static atomic_t auxpcm_mi2s_clk_ref;
 static struct snd_info_entry *codec_root;
 
-static int headset_gpio;
+static int headset_en_gpio;
+static int headset_in_gpio;
 static int spk_pa_gpio;
 
 static struct delayed_work lineout_amp_enable;
@@ -781,7 +782,8 @@ static int msm8952_enable_dig_cdc_clk(struct snd_soc_codec *codec,
 static void msm8952_ext_hs_control(u32 enable)
 {
 
-	gpio_direction_output(headset_gpio, enable);
+	gpio_direction_output(headset_en_gpio, enable);
+	gpio_direction_output(headset_in_gpio, enable);
 	pr_err("%s: %s [zjm]  headset 111PAs.\n", __func__,
 	  enable ? "Enable" : "Disable");
 }
@@ -789,7 +791,8 @@ static void msm8952_ext_hs_control(u32 enable)
 static void msm8952_ext_hs_delay_enable(struct work_struct *work)
 {
 
-	gpio_direction_output(headset_gpio, true);
+	gpio_direction_output(headset_en_gpio, true);
+	gpio_direction_output(headset_in_gpio, true);
 	pr_err("%s:  [zjm]  headset 111PAs.\n", __func__);
 }
 
@@ -836,7 +839,8 @@ static void msm8x16_ext_spk_delayed_dualmode(struct work_struct *work)
 	int i = 0;
 
 	/* Open the headset device */
-	gpio_direction_output(headset_gpio, true);
+	gpio_direction_output(headset_en_gpio, true);
+	gpio_direction_output(headset_in_gpio, true);
 	usleep_range(EXT_CLASS_D_EN_DELAY,
 		EXT_CLASS_D_EN_DELAY + EXT_CLASS_D_DELAY_DELTA);
 
@@ -3270,16 +3274,27 @@ parse_mclk_freq:
 	}
 	pr_err("%s: [hjf] request spk_pa_gpio is %d!\n", __func__, spk_pa_gpio);
 
-	headset_gpio = of_get_named_gpio(pdev->dev.of_node, "headset-gpio", 0);
-	if (headset_gpio < 0) {
+	headset_en_gpio = of_get_named_gpio(pdev->dev.of_node, "qcom,msm-switch-headphone-en", 0);
+	if (headset_en_gpio < 0) {
 		dev_err(&pdev->dev,
-		"%s: error! headset_gpio is :%d\n", __func__, headset_gpio);
+		"%s: error! headset_en_gpio is :%d\n", __func__, headset_en_gpio);
 	} else {
-		if (gpio_request_one(headset_gpio, GPIOF_DIR_OUT, "headset_enable")) {
-			pr_err("%s: request headset_gpio fail!\n", __func__);
+		if (gpio_request_one(headset_en_gpio, GPIOF_DIR_OUT, "headset_en_gpio")) {
+			pr_err("%s: request headset_en_gpio fail!\n", __func__);
 		}
 	}
-	pr_err("%s: [hjf] request headset_gpio is %d!\n", __func__, headset_gpio);
+	pr_err("%s: [hjf] request headset_en_gpio is %d!\n", __func__, headset_en_gpio);
+
+	headset_in_gpio = of_get_named_gpio(pdev->dev.of_node, "qcom,msm-switch-headphone-in", 0);
+	if (headset_in_gpio < 0) {
+		dev_err(&pdev->dev,
+		"%s: error! headset_in_gpio is :%d\n", __func__, headset_in_gpio);
+	} else {
+		if (gpio_request_one(headset_in_gpio, GPIOF_DIR_OUT, "headset_in_gpio")) {
+			pr_err("%s: request headset_in_gpio fail!\n", __func__);
+		}
+	}
+	pr_err("%s: [hjf] request headset_in_gpio is %d!\n", __func__, headset_in_gpio);
 
 	/*reading the gpio configurations from dtsi file*/
 	num_strings = of_property_count_strings(pdev->dev.of_node,
