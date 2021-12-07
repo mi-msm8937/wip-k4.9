@@ -95,14 +95,6 @@
 			};
 		};
 	};
-
-	qcom,pmi8950@3 {
-		qcom,haptics@c000 {
-			qcom,actuator-type = <1>;
-			qcom,use-play-irq;
-			qcom,use-sc-irq;
-		};
-	};
 };
 
 &pm8953_gpios {
@@ -185,10 +177,6 @@
 		qcom,id = <1>;
 		qcom,current = <120>;
 	};
-};
-
-&pmi_haptic {
-	qcom,vmax-mv = <3000>;
 };
 
 &soc {
@@ -579,3 +567,13 @@
 	qcom,no-aarch64;
 };
 
+
+&pmi_haptic {
+	qcom,vmax-mv = <3000>;
+	wf_0 { qcom,wf-vmax-mv = <3000>; };
+	wf_1 { qcom,wf-vmax-mv = <3000>; };
+	wf_2 { qcom,wf-vmax-mv = <3000>; };
+	wf_3 { qcom,wf-vmax-mv = <3000>; };
+	wf_4 { qcom,wf-vmax-mv = <3000>; };
+	wf_5 { qcom,wf-vmax-mv = <3000>; };
+};
