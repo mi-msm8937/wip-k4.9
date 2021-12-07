@@ -149,7 +149,7 @@
 			<&proxy_rx>, <&proxy_tx>;
 		asoc-cpu-names = "msm-dai-q6-mi2s.0", "msm-dai-q6-mi2s.1",
 			"msm-dai-q6-mi2s.2", "msm-dai-q6-mi2s.3",
-			"msm-dai-q6-mi2s.4",
+			"msm-dai-q6-mi2s.5",
 			"msm-dai-q6-auxpcm.1", "msm-dai-q6-auxpcm.2",
 			"msm-dai-q6-auxpcm.3", "msm-dai-q6-auxpcm.4",
 			"msm-dai-q6-auxpcm.5",
@@ -217,7 +217,7 @@
 		asoc-cpu-names = "msm-dai-q6-dp.24608",
 			"msm-dai-q6-mi2s.0","msm-dai-q6-mi2s.1",
 			"msm-dai-q6-mi2s.2", "msm-dai-q6-mi2s.3",
-			"msm-dai-q6-mi2s.4",
+			"msm-dai-q6-mi2s.5",
 			"msm-dai-q6-mi2s.7", "msm-dai-q6-mi2s.8",
 			"msm-dai-q6-mi2s.9", "msm-dai-q6-mi2s.10",
 			"msm-dai-q6-mi2s.11", "msm-dai-q6-mi2s.12",
