@@ -1,4 +1,5 @@
 /* Copyright (c) 2015-2016, 2018, 2020, The Linux Foundation.
+ * Copyright (C) 2019 XiaoMi, Inc.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -82,7 +83,11 @@ static int msm8952_wsa_switch_event(struct snd_soc_dapm_widget *w,
 static struct wcd_mbhc_config mbhc_cfg = {
 	.read_fw_bin = false,
 	.calibration = NULL,
+#if defined(CONFIG_MACH_XIAOMI_SAKURA) || defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+	.detect_extn_cable = false,
+#else
 	.detect_extn_cable = true,
+#endif
 	.mono_stero_detection = false,
 	.swap_gnd_mic = NULL,
 	.hs_ext_micbias = false,
@@ -1517,7 +1522,11 @@ static void *def_msm8952_wcd_mbhc_cal(void)
 		return NULL;
 
 #define S(X, Y) ((WCD_MBHC_CAL_PLUG_TYPE_PTR(msm8952_wcd_cal)->X) = (Y))
+#if defined(CONFIG_MACH_XIAOMI_SAKURA) || defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+	S(v_hs_max, 1600);
+#else
 	S(v_hs_max, 1500);
+#endif
 #undef S
 #define S(X, Y) ((WCD_MBHC_CAL_BTN_DET_PTR(msm8952_wcd_cal)->X) = (Y))
 	S(num_btn, WCD_MBHC_DEF_BUTTONS);
@@ -1540,6 +1549,18 @@ static void *def_msm8952_wcd_mbhc_cal(void)
 	 * 210-290 == Button 2
 	 * 360-680 == Button 3
 	 */
+#if defined(CONFIG_MACH_XIAOMI_SAKURA) || defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+	btn_low[0] = 91;
+	btn_high[0] = 91;
+	btn_low[1] = 259;
+	btn_high[1] = 259;
+	btn_low[2] = 488;
+	btn_high[2] = 488;
+	btn_low[3] = 488;
+	btn_high[3] = 488;
+	btn_low[4] = 488;
+	btn_high[4] = 488;
+#else
 	btn_low[0] = 75;
 	btn_high[0] = 75;
 	btn_low[1] = 150;
@@ -1550,6 +1571,7 @@ static void *def_msm8952_wcd_mbhc_cal(void)
 	btn_high[3] = 450;
 	btn_low[4] = 500;
 	btn_high[4] = 500;
+#endif
 
 	return msm8952_wcd_cal;
 }
