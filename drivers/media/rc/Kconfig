@@ -389,4 +389,10 @@ config IR_SUNXI
 	   To compile this driver as a module, choose M here: the module will
 	   be called sunxi-ir.
 
+config SPI_PEELIR
+	tristate "PEELIR"
+
+	---help---
+	   Enable this option if you use peelir
+
 endif #RC_DEVICES
