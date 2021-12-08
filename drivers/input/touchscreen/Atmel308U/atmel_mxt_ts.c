@@ -1829,12 +1829,12 @@ static void mxt_proc_t97_messages(struct mxt_data *data, u8 *msg)
 		new_state = test_bit(key, &keystates);
 
 		if (!curr_state && new_state) {
-			dev_dbg(dev, "T97 key press: %u, key_code = %u\n", key, pdata->config_array[index].key_codes[key]);
+			dev_info(dev, "T97 key press: %u, key_code = %u\n", key, pdata->config_array[index].key_codes[key]);
 			__set_bit(key, &data->keystatus);
 			input_event(input_dev, EV_KEY, pdata->config_array[index].key_codes[key], 1);
 			sync = true;
 		} else if (curr_state && !new_state) {
-			dev_dbg(dev, "T97 key release: %u, key_code = %u\n", key, pdata->config_array[index].key_codes[key]);
+			dev_info(dev, "T97 key release: %u, key_code = %u\n", key, pdata->config_array[index].key_codes[key]);
 			__clear_bit(key, &data->keystatus);
 			input_event(input_dev, EV_KEY,  pdata->config_array[index].key_codes[key], 0);
 			sync = true;
