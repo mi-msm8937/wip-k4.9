@@ -1,4 +1,5 @@
 /* Copyright (c) 2014-2016, 2018-2019 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -448,13 +449,21 @@ module_param_named(
 	int, 00600
 );
 
+#if defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+static int smbchg_default_hvdcp_icl_ma = 2500;
+#else
 static int smbchg_default_hvdcp_icl_ma = 1800;
+#endif
 module_param_named(
 	default_hvdcp_icl_ma, smbchg_default_hvdcp_icl_ma,
 	int, 00600
 );
 
+#if defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+static int smbchg_default_hvdcp3_icl_ma = 2500;
+#else
 static int smbchg_default_hvdcp3_icl_ma = 3000;
+#endif
 module_param_named(
 	default_hvdcp3_icl_ma, smbchg_default_hvdcp3_icl_ma,
 	int, 00600
@@ -2891,6 +2900,10 @@ static int smbchg_system_temp_level_set(struct smbchg_chip *chip,
 	int prev_therm_lvl;
 	int thermal_icl_ma;
 
+#if defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+	unsigned int	hvdcp_thermal_mitigation[7] = {2500, 2500, 1500, 1000, 1000, 500, 0};
+#endif
+
 	if (!chip->thermal_mitigation) {
 		dev_err(chip->dev, "Thermal mitigation not supported\n");
 		return -EINVAL;
@@ -2944,8 +2957,17 @@ static int smbchg_system_temp_level_set(struct smbchg_chip *chip,
 			pr_err("Couldn't disable DC thermal ICL vote rc=%d\n",
 				rc);
 	} else {
+#if defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+		if (chip->usb_supply_type == POWER_SUPPLY_TYPE_USB_HVDCP || chip->usb_supply_type == POWER_SUPPLY_TYPE_USB_HVDCP_3){
+		thermal_icl_ma =
+			(int)hvdcp_thermal_mitigation[chip->therm_lvl_sel];
+		} else {
+#endif
 		thermal_icl_ma =
 			(int)chip->thermal_mitigation[chip->therm_lvl_sel];
+#if defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+		}
+#endif
 		rc = vote(chip->usb_icl_votable, THERMAL_ICL_VOTER, true,
 					thermal_icl_ma);
 		if (rc < 0)
@@ -6092,7 +6114,7 @@ static int smbchg_battery_get_property(struct power_supply *psy,
 		val->intval = get_prop_batt_health(chip);
 		break;
 	case POWER_SUPPLY_PROP_TECHNOLOGY:
-#ifdef CONFIG_MACH_XIAOMI_TISSOT
+#if defined(CONFIG_MACH_XIAOMI_TISSOT) || defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
 		val->intval = POWER_SUPPLY_TECHNOLOGY_LIPO;
 #else
 		val->intval = POWER_SUPPLY_TECHNOLOGY_LION;
@@ -6308,7 +6330,7 @@ static irqreturn_t batt_warm_handler(int irq, void *_chip)
 	struct smbchg_chip *chip = _chip;
 	u8 reg = 0;
 
-#ifdef CONFIG_MACH_XIAOMI_TISSOT
+#if defined(CONFIG_MACH_XIAOMI_TISSOT) || defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
 	int rc;
 	/* set the warm float voltage compensation,set the warm float voltage to 4.1V */
 	if (chip->float_voltage_comp != -EINVAL) {
@@ -6335,7 +6357,7 @@ static irqreturn_t batt_cool_handler(int irq, void *_chip)
 	struct smbchg_chip *chip = _chip;
 	u8 reg = 0;
 
-#ifdef CONFIG_MACH_XIAOMI_TISSOT
+#if defined(CONFIG_MACH_XIAOMI_TISSOT) || defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
 	int rc;
 	/* set the cool float voltage compensation ,set the cool float voltage to 4.4V*/
 	rc = smbchg_float_voltage_comp_set(chip, 0);
@@ -7054,6 +7076,15 @@ static int smbchg_hw_init(struct smbchg_chip *chip)
 		}
 	}
 
+#if defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+	rc = smbchg_sec_masked_write(chip,
+			chip->usb_chgpth_base + USBIN_CHGR_CFG,
+			0xFF, 0x00);
+	if (rc < 0)
+		dev_err(chip->dev, "Couldn't set only 5v OVP 6.4V rc=%d\n",
+				rc);
+#endif
+
 	rc = smbchg_sec_masked_write(chip, chip->usb_chgpth_base + TR_RID_REG,
 			FG_INPUT_FET_DELAY_BIT, FG_INPUT_FET_DELAY_BIT);
 	if (rc < 0) {
@@ -7549,7 +7580,11 @@ err:
 }
 
 #define DEFAULT_VLED_MAX_UV		3500000
+#if defined(CONFIG_MACH_XIAOMI_TIFFANY) || defined(CONFIG_MACH_XIAOMI_VINCE)
+#define DEFAULT_FCC_MA			2500
+#else
 #define DEFAULT_FCC_MA			2000
+#endif
 #define DEFAULT_NUM_OF_PULSE_ALLOWED	20
 static int smb_parse_dt(struct smbchg_chip *chip)
 {
