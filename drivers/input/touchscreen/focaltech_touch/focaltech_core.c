@@ -42,6 +42,11 @@
 #define FTS_SUSPEND_LEVEL 1	 /* Early-suspend level */
 #endif
 
+#ifdef CONFIG_MACH_XIAOMI
+#include <linux/xiaomi_device.h>
+extern int xiaomi_device_read(void);
+#endif
+
 /*****************************************************************************
  * Private constant and macro definitions using #define
  *****************************************************************************/
@@ -1146,13 +1151,22 @@ static int fts_ts_probe(struct i2c_client *client,
 	fts_power_source_ctrl(data, 1);
 #endif
 
-	fts_ctpm_get_upgrade_array();
-
 	err = fts_gpio_configure(data);
 	if (err < 0) {
 		FTS_ERROR("[GPIO]Failed to configure the gpios");
 		goto free_gpio;
 	}
+
+#if defined(CONFIG_MACH_XIAOMI_ROLEX) || defined(CONFIG_MACH_XIAOMI_SANTONI)
+	if (xiaomi_device_read() == XIAOMI_DEVICE_ROLEX || xiaomi_device_read() == XIAOMI_DEVICE_SANTONI) {
+		u8 reg_value = 0;
+		err = fts_i2c_read_reg(client, FTS_REG_CHIP_ID, &reg_value);
+		if (err < 0)
+			client->addr = 0x3E;
+	}
+#endif
+
+	fts_ctpm_get_upgrade_array();
 
 	fts_reset_proc(200);
 	fts_wait_tp_to_valid(client);
