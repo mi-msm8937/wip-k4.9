@@ -521,12 +521,6 @@ static inline int pwm_set_polarity(struct pwm_device *pwm,
 	return pwm_apply_state(pwm, &state);
 }
 
-#ifdef CONFIG_IR_PWM
-long stop_ir_pwm_data(void);
-/* pwm_enable & pwm_disable - direct write pwm register to control pwm output is enabled and disabled*/
-long qpnp_ir_pwm_data(void *arg);
-#endif
-
 /**
  * pwm_enable() - start a PWM output toggling
  * @pwm: PWM device
