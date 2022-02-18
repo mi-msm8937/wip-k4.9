@@ -45,7 +45,7 @@
 	spkamp@3a {
 		compatible = "maxim,max98927L";
 		interleave_mode = <0x0>;
-		dvdd-supply = <&pm8953_l6>;
+		max989xx_vdd = <&pm8953_l6>;
 		maxim,98927-reset-gpio = <&tlmm 0x8d 0x0>;
 		mono_stereo_mode = <0x0>;
 		reg = <0x3a>;
