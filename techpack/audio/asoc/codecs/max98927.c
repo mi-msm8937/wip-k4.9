@@ -1378,25 +1378,25 @@ static int max98927_i2c_probe(struct i2c_client *i2c,
 
 #if MANUAL_DVDD_ENABLE
 	if (!max98927->i2c_pull) {
-		max98927->i2c_pull = devm_regulator_get(dev, "i2c-pull");
+		max98927->i2c_pull = devm_regulator_get(&i2c->dev, "i2c-pull");
 		if (IS_ERR(max98927->i2c_pull)) {
 			pr_err("%s: regulator i2c_pull get failed\n ", __func__);
-			/* devm_kfree(dev, max98927); */
+			/* devm_kfree(&i2c->dev, max98927); */
 			/* return PTR_ERR(max98927->i2c_pull); */
 		}
 
 		ret = regulator_enable(max98927->i2c_pull);
 		if (ret) {
 			pr_err("%s: regulator_enable i2c_pull failed! \n", __func__);
-			/* devm_kfree(dev, max98927); */
+			/* devm_kfree(&i2c->dev, max98927); */
 			/* return ret; */
 		}
 	}
 
-	max98927->max989xx_vdd = regulator_get(dev, "dvdd");
+	max98927->max989xx_vdd = regulator_get(&i2c->dev, "dvdd");
 	if (IS_ERR(max98927->max989xx_vdd)) {
 		pr_err("regulator max989xx vdd get failed\n ");
-		/* devm_kfree(dev, max98927); */
+		/* devm_kfree(&i2c->dev, max98927); */
 		/* return PTR_ERR(max98927->max989xx_vdd); */
 	} else {
 		if (regulator_count_voltages(max98927->max989xx_vdd) > 0) {
