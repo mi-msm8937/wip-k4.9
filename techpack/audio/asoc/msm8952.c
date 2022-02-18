@@ -362,11 +362,13 @@ static int enable_spk_ext_pa(struct snd_soc_codec *codec, int enable)
 	int pa_mode = EXT_PA_MODE;
 #endif
 
+#ifndef CONFIG_MACH_XIAOMI_UTER
 	if (!gpio_is_valid(pdata->spk_ext_pa_gpio)) {
 		pr_err("%s: Invalid gpio: %d\n", __func__,
 			pdata->spk_ext_pa_gpio);
 		return false;
 	}
+#endif
 
 #ifdef CONFIG_MACH_XIAOMI_TISSOT
 	ext_pa_status = enable;
@@ -392,10 +394,14 @@ static int enable_spk_ext_pa(struct snd_soc_codec *codec, int enable)
 					__func__, "ext_spk_gpio");
 			return ret;
 		}
+#ifndef CONFIG_MACH_XIAOMI_UTER
 		gpio_set_value_cansleep(pdata->spk_ext_pa_gpio, enable);
 #endif
+#endif
 	} else {
+#ifndef CONFIG_MACH_XIAOMI_UTER
 		gpio_set_value_cansleep(pdata->spk_ext_pa_gpio, enable);
+#endif
 #ifndef CONFIG_MACH_XIAOMI_MIDO
 		ret = msm_cdc_pinctrl_select_sleep_state(
 				pdata->spk_ext_pa_gpio_p);
