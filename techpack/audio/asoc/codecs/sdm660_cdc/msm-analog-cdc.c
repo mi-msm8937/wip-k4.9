@@ -3278,16 +3278,16 @@ static int msm_anlg_cdc_codec_enable_spk_ext_pa(struct snd_soc_dapm_widget *w,
 	struct sdm660_cdc_priv *sdm660_cdc =
 					snd_soc_codec_get_drvdata(codec);
 
-	dev_dbg(codec->dev, "%s: %s event = %d\n", __func__, w->name, event);
+	dev_err(codec->dev, "%s: %s event = %d\n", __func__, w->name, event);
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
-		dev_dbg(codec->dev,
+		dev_err(codec->dev,
 			"%s: enable external speaker PA\n", __func__);
 		if (sdm660_cdc->codec_spk_ext_pa_cb)
 			sdm660_cdc->codec_spk_ext_pa_cb(codec, 1);
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
-		dev_dbg(codec->dev,
+		dev_err(codec->dev,
 			"%s: enable external speaker PA\n", __func__);
 		if (sdm660_cdc->codec_spk_ext_pa_cb)
 			sdm660_cdc->codec_spk_ext_pa_cb(codec, 0);
