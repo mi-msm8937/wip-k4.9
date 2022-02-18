@@ -25,12 +25,13 @@
 	pinctrl-0 = <&pwm_ir_default>;
         pwm_ir_default: pwm_ir_default {
             pins = "gpio1";
-            output-high; /* qcom,mode = <0x1>; && qcom,out-strength = <0x3>; */
-            qcom,drive-strength = <1>; /* qcom,out-strength = <0x3>; */
+            output-low; /* qcom,mode = <0x1>; && qcom,out-strength = <0x3>; */
+            qcom,drive-strength = <2>; /* qcom,out-strength = <0x3>; */
             bias-disable; /* qcom,pull = <0x5>; */
-            function = "dtest3"; /* qcom,src-sel = <0x6>; */
+            function = "dtest2"; /* qcom,src-sel = <0x6>; */
 	    status = "okay";
         };
+	status = "okay";
 };
 
 &soc {
