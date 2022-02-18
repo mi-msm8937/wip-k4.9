@@ -21,7 +21,12 @@
 #include <linux/regulator/consumer.h>
 
 #define F0_DETECT 1
+
+#ifdef CONFIG_MACH_XIAOMI_UTER
+#define MANUAL_DVDD_ENABLE 1
+#else
 #define MANUAL_DVDD_ENABLE 0
+#endif
 
 #define Q_DSM_ADAPTIVE_FC 9
 #define Q_DSM_ADAPTIVE_DC_RES 27
