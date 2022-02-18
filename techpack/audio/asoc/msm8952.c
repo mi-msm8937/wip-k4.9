@@ -2532,8 +2532,13 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Quaternary MI2S Playback",
 		.cpu_dai_name = "msm-dai-q6-mi2s.3",
 		.platform_name = "msm-pcm-routing",
+#if (defined CONFIG_SND_SOC_MAX98927) && (defined CONFIG_MACH_XIAOMI_UTER)
+		.codec_dai_name = "max98927-aif1",
+		.codec_name = "max98927",
+#else
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
+#endif
 		.no_pcm = 1,
 		.dpcm_playback = 1,
 		.id = MSM_BACKEND_DAI_QUATERNARY_MI2S_RX,
@@ -2547,8 +2552,13 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Quaternary MI2S Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.3",
 		.platform_name = "msm-pcm-routing",
+#if (defined CONFIG_SND_SOC_MAX98927) && (defined CONFIG_MACH_XIAOMI_UTER)
+		.codec_dai_name = "max98927-aif1",
+		.codec_name = "max98927",
+#else
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
+#endif
 		.no_pcm = 1,
 		.dpcm_capture = 1,
 		.id = MSM_BACKEND_DAI_QUATERNARY_MI2S_TX,
@@ -2732,7 +2742,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Quinary MI2S Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.4",
 		.platform_name = "msm-pcm-routing",
-#ifdef CONFIG_SND_SOC_MAX98927
+#if (defined CONFIG_SND_SOC_MAX98927) && (!defined CONFIG_MACH_XIAOMI_UTER)
 		.codec_dai_name = "max98927-aif1",
 		.codec_name = "max98927",
 #else
@@ -2797,7 +2807,7 @@ static struct snd_soc_dai_link msm8952_quin_dai_link[] = {
 		.stream_name = "Quinary MI2S Playback",
 		.cpu_dai_name = "msm-dai-q6-mi2s.4",
 		.platform_name = "msm-pcm-routing",
-#ifdef CONFIG_SND_SOC_MAX98927
+#if (defined CONFIG_SND_SOC_MAX98927) && (!defined CONFIG_MACH_XIAOMI_UTER)
 		.codec_dai_name = "max98927-aif1",
 		.codec_name = "max98927",
 #else
