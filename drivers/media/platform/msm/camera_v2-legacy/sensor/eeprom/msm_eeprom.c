@@ -1887,7 +1887,7 @@ static uint8_t get_otp_vendor_module_id(struct msm_eeprom_ctrl_t *e_ctrl, const 
 	/* FIXME */
 	printk("hjl enter D7 back camera\n");
 	if(strcmp(eeprom_name,"ov12a10") == 0) {
-		module_id = MID_OFILM;
+		module_id = MID_SUNNY;
 	}
 
 	printk("hjl %s %d eeprom_name=%s, module_id=0x%x\n",__func__,__LINE__,eeprom_name, module_id);

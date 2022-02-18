@@ -1053,7 +1053,7 @@ int32_t msm_sensor_driver_probe(void *setting,
 			if(strcmp(slave_info->eeprom_name, s_vendor_eeprom[i].eeprom_name) == 0) {
 
 				printk("lct slave_info->sensor_name =%s, module_id=%d\n", slave_info->sensor_name, s_vendor_eeprom[i].module_id);
-				if(((strcmp(slave_info->sensor_name,"ov12a10") == 0) && (s_vendor_eeprom[i].module_id == MID_OFILM))
+				if(((strcmp(slave_info->sensor_name,"ov12a10") == 0) && (s_vendor_eeprom[i].module_id == MID_SUNNY))
 					|| ((strcmp(slave_info->sensor_name,"s5k3p8sp_d16s01n_sunny_d7") == 0) && (s_vendor_eeprom[i].module_id == MID_SUNNY))
 					|| ((strcmp(slave_info->sensor_name,"ov16885") == 0) && (s_vendor_eeprom[i].module_id == MID_OFILM))) {
 						printk("lct module found!probe continue!\n");
