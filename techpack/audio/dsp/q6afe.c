@@ -1078,7 +1078,11 @@ int afe_dsm_setget_params(uint8_t *payload, int size, int dir)
 	struct afe_dsm_set_command *set = NULL;
 	struct afe_dsm_get_command *get = NULL;
 	uint32_t *config = NULL;
+#ifdef CONFIG_MACH_XIAOMI_UTER
+	int ret = -EINVAL, dst_port = AFE_DSM_RX_PORT;
+#else
 	int ret = -EINVAL, dst_port = AFE_PORT_ID_QUINARY_MI2S_RX;
+#endif
 	int index = 0;
  	if (!payload || size <= 0) {
 		pr_err("%s: Invalid params\n", __func__);
