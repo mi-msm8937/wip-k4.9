@@ -3348,6 +3348,14 @@ parse_mclk_freq:
 	pdata->spk_ext_pa_gpio_p = of_parse_phandle(pdev->dev.of_node,
 							"qcom,cdc-ext-pa-gpios", 0);
 
+	/* mytemp */
+		ret =  msm_cdc_pinctrl_select_active_state(
+					pdata->spk_ext_pa_gpio_p);
+		if (ret) {
+			pr_err("%s: gpio set cannot be de-activated %s\n",
+					__func__, "ext_spk_gpio");
+		}
+
 	ret = is_us_eu_switch_gpio_support(pdev, pdata);
 	if (ret < 0) {
 		pr_err("%s: failed to is_us_eu_switch_gpio_support %d\n",
