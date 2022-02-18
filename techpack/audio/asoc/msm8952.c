@@ -372,7 +372,7 @@ static int enable_spk_ext_pa(struct snd_soc_codec *codec, int enable)
 	ext_pa_status = enable;
 #endif
 
-	pr_debug("%s: %s external speaker PA\n", __func__,
+	pr_info("%s: %s external speaker PA\n", __func__,
 		enable ? "Enable" : "Disable");
 
 	if (enable) {
