@@ -570,6 +570,7 @@ static int aw2013_led_probe(struct i2c_client *client,
 	ret = aw_2013_check_chipid(led_array);
 	if (ret) {
 		dev_err(&client->dev, "Check chip id error\n");
+		ret = -EPROBE_DEFER;
 		goto free_led_arry;
 	}
 
