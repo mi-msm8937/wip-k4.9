@@ -8,6 +8,7 @@
 #include <linux/i2c.h>
 #include <linux/module.h>
 #include <linux/regmap.h>
+#include <linux/regulator/consumer.h>
 #include <linux/slab.h>
 #include <linux/cdev.h>
 #include <sound/pcm.h>
@@ -20,6 +21,12 @@
 #include <linux/regulator/consumer.h>
 
 #define F0_DETECT 1
+
+#ifdef CONFIG_MACH_XIAOMI_UTER
+#define MANUAL_DVDD_ENABLE 1
+#else
+#define MANUAL_DVDD_ENABLE 0
+#endif
 
 #define Q_DSM_ADAPTIVE_FC 9
 #define Q_DSM_ADAPTIVE_DC_RES 27
@@ -1368,6 +1375,52 @@ static int max98927_i2c_probe(struct i2c_client *i2c,
 	}
 	max98927->dev = &i2c->dev;
 	pr_info("max98927 reset gpio requse  name:%s------\n", i2c->name);
+
+#if MANUAL_DVDD_ENABLE
+	if (!max98927->i2c_pull) {
+		max98927->i2c_pull = devm_regulator_get(&i2c->dev, "i2c-pull");
+		if (IS_ERR(max98927->i2c_pull)) {
+			pr_err("%s: regulator i2c_pull get failed\n ", __func__);
+			/* devm_kfree(&i2c->dev, max98927); */
+			/* return PTR_ERR(max98927->i2c_pull); */
+		}
+
+		ret = regulator_enable(max98927->i2c_pull);
+		if (ret) {
+			pr_err("%s: regulator_enable i2c_pull failed! \n", __func__);
+			/* devm_kfree(&i2c->dev, max98927); */
+			/* return ret; */
+		}
+	}
+
+	max98927->max989xx_vdd = regulator_get(&i2c->dev, "dvdd");
+	if (IS_ERR(max98927->max989xx_vdd)) {
+		pr_err("regulator max989xx vdd get failed\n ");
+		/* devm_kfree(&i2c->dev, max98927); */
+		/* return PTR_ERR(max98927->max989xx_vdd); */
+	} else {
+		if (regulator_count_voltages(max98927->max989xx_vdd) > 0) {
+			ret = regulator_set_voltage(max98927->max989xx_vdd, 1800000, 1800000);
+			if (ret) {
+				pr_err("%s Regulator set vdd failed ret=%d\n", __func__, ret);
+				/* return ret; */
+			}
+
+			ret = regulator_set_load(max98927->max989xx_vdd, 200000);
+			if (ret) {
+				pr_err("%s failed to set load, ret=%d\n", __func__, ret);
+				/* return ret; */
+			}
+		}
+	}
+
+	ret = regulator_enable(max98927->max989xx_vdd);
+	if (ret) {
+		pr_err("regulator_enable max989xx_vdd failed! \n");
+		/* devm_kfree(dev, max98927); */
+		/* return ret; */
+	}
+#endif
 
 	max98927->reset_gpio_l = of_get_named_gpio(i2c->dev.of_node, "maxim,98927-reset-gpio", 0);
 	pr_info("reset_gpio_l:%d------\n", max98927->reset_gpio_l);

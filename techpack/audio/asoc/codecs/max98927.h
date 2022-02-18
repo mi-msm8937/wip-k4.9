@@ -1215,6 +1215,9 @@ struct max98927_priv {
 	unsigned int level_hold;
 	int reset_gpio_l;
 	int reset_gpio_r;
+
+	struct regulator *max989xx_vdd;
+	struct regulator *i2c_pull;
 };
 
 #define MAX98927_GLOBAL_SHIFT 0
