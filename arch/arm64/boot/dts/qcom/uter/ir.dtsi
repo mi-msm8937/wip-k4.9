@@ -21,6 +21,7 @@
 		status = "okay";
 	};
 */
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pwm_ir_default>;
         pwm_ir_default: pwm_ir_default {
@@ -31,7 +32,6 @@
             function = "dtest2"; /* qcom,src-sel = <0x6>; */
 	    status = "okay";
         };
-	status = "okay";
 };
 
 &soc {
