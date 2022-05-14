@@ -25,6 +25,7 @@
 #define MSM_SEC_MI2S  1
 #define MSM_TERT_MI2S 2
 #define MSM_QUAT_MI2S  3
+/* mynote */
 #define MSM_QUIN_MI2S  4
 #define MSM_SEC_MI2S_SD1  5
 #define MSM_SENARY_MI2S  6
