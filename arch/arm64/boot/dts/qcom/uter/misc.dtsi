@@ -1,0 +1,68 @@
+/* msm8953-mtp.dts */
+&i2c_5 {
+	/* status = "disabled"; */
+	/delete-node/ nq@28;
+};
+&spi_3 {
+	spi-max-frequency = <0x124f800>;
+	/delete-node/ maxim_sti@0;
+};
+
+/* msm8953-mtp.dtsi */
+&soc {
+	gpio_keys {
+		/delete-node/ camera_focus;
+		/delete-node/ camera_snapshot;
+		home {
+			debounce-interval = <0xf>;
+			gpio-key,wakeup;
+			gpios = <&tlmm 0x3b 0x1>;
+			label = "home";
+			linux,code = <0x66>;
+			linux,input-type = <0x1>;
+		};
+	};
+	/delete-node/ hbtp;
+};
+&sdhc_2 {
+	cd-gpios = <&tlmm 133 0x0>;
+};
+
+/* msm8953.dtsi */
+&qusb_phy {
+	qcom,qusb-phy-init-seq = <0xF8 0x80
+				0x3f 0x84
+				0x83 0x88
+				0xC0 0x8C
+				0x14 0x9C
+				0x30 0x08
+				0x79 0x0C
+				0x21 0x10
+				0x00 0x90
+				0x9F 0x1C
+				0x00 0x18>;
+};
+
+/* msm-pmi8950.dtsi */
+&spmi_bus {
+	qcom,pmi8950@2 {
+		/delete-node/ qcom,leds@a100;
+		qcom,leds@a200 {
+			compatible = "qcom,leds-qpnp";
+			reg = <0xa200 0x100>;
+			qcom,led_mpp_3 {
+				label = "mpp";
+				linux,default-trigger = "none";
+				linux,name = "button-backlight";
+				qcom,current-setting = <0x5>;
+				qcom,default-state = "off";
+				qcom,id = <0x6>;
+				qcom,max-current = <0x28>;
+				qcom,mode = "manual";
+				qcom,mode-ctrl = <0x10>;
+				qcom,source-sel = <0x0>;
+				qcom,vin-ctrl = <0x0>;
+			};
+		};
+	};
+};
