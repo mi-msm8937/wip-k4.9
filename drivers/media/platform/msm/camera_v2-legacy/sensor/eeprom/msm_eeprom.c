@@ -1715,14 +1715,13 @@ static long msm_eeprom_subdev_ioctl32(struct v4l2_subdev *sd,
 	void __user *argp = (void __user *)arg;
 
 	CDBG("%s E\n", __func__);
-	CDBG("%s:%d a_ctrl %pK argp %pK, 123123 cmd=%d\n", __func__, __LINE__, e_ctrl, argp, cmd);
+	CDBG("%s:%d a_ctrl %pK argp %pK\n", __func__, __LINE__, e_ctrl, argp);
 	switch (cmd) {
 	case VIDIOC_MSM_SENSOR_GET_SUBDEV_ID:
 		return msm_eeprom_get_subdev_id(e_ctrl, argp);
 	case VIDIOC_MSM_EEPROM_CFG32:
 		return msm_eeprom_config32(e_ctrl, argp);
 	default:
-		CDBG("%s ENOIOCTLCMD X\n", __func__);
 		return -ENOIOCTLCMD;
 	}
 
