@@ -23,7 +23,6 @@
 #include <linux/qpnp/pwm.h>
 #include <linux/err.h>
 #include <linux/string.h>
-#include <linux/hwinfo.h>
 #include "mdss_dsi.h"
 #include "mdss_debug.h"
 #ifdef TARGET_HW_MDSS_HDMI
@@ -3533,7 +3532,6 @@ int mdss_dsi_panel_init(struct device_node *node,
 		panel_id = -1;
 	} else {
 		pr_info("panel_id %d\n", panel_id);
-		update_hardware_info(TYPE_PANEL, panel_id);
 	}
 
 	rc = mdss_panel_parse_dt(node, ctrl_pdata);
