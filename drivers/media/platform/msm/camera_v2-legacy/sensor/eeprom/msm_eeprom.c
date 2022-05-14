@@ -20,7 +20,7 @@
 #include "msm_eeprom.h"
 
 #undef CDBG
-#define CDBG(fmt, args...) pr_info(fmt, ##args)
+#define CDBG(fmt, args...) pr_debug(fmt, ##args)
 
 DEFINE_MSM_MUTEX(msm_eeprom_mutex);
 #ifdef CONFIG_COMPAT
