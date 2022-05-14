@@ -1,5 +1,4 @@
 /* Copyright (c) 2008-2020, The Linux Foundation. All rights reserved.
- * Copyright (C) 2017 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -271,7 +270,6 @@ enum mdss_intf_events {
 	MDSS_EVENT_DSI_CMDLIST_KOFF,
 	MDSS_EVENT_ENABLE_PARTIAL_ROI,
 	MDSS_EVENT_DSC_PPS_SEND,
-	MDSS_EVENT_DISPPARAM,
 	MDSS_EVENT_DSI_STREAM_SIZE,
 	MDSS_EVENT_DSI_UPDATE_PANEL_DATA,
 	MDSS_EVENT_REGISTER_RECOVERY_HANDLER,
@@ -653,7 +651,6 @@ struct mdss_panel_info {
 	u32 out_format;
 	u32 rst_seq[MDSS_DSI_RST_SEQ_LEN];
 	u32 rst_seq_len;
-	u32 rst_off_delay;
 	u32 vic; /* video identification code */
 	struct mdss_rect roi;
 	int pwm_pmic_gpio;
@@ -695,7 +692,6 @@ struct mdss_panel_info {
 	bool partial_update_enabled; /* is pu currently allowed */
 	u32 partial_update_col_addr_offset; /* panel column addr offset */
 	u32 partial_update_row_addr_offset; /* panel row addr offset */
-	u32 dispparam_enabled;
 	u32 dcs_cmd_by_left;
 	u32 partial_update_roi_merge;
 	struct ion_handle *splash_ihdl;
@@ -743,10 +739,6 @@ struct mdss_panel_info {
 	char panel_name[MDSS_MAX_PANEL_LEN];
 	struct mdss_mdp_pp_tear_check te;
 
-	uint32_t panel_paramstatus;
-	uint32_t panel_on_param;
-	uint32_t panel_on_dimming_delay;
-
 	/*
 	 * Value of 2 only when single DSI is configured with 2 DSC
 	 * encoders. When 2 encoders are used, currently both use
@@ -769,7 +761,6 @@ struct mdss_panel_info {
 	struct edp_panel_info edp;
 
 	bool is_dba_panel;
-	bool is_oled_hbm_mode;
 
 	/*
 	 * Delay(in ms) to accommodate s/w delay while
