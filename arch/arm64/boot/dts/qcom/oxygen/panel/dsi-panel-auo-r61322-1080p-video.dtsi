@@ -98,7 +98,7 @@
 		qcom,mdss-pan-physical-width-dimension = <80>;
 		qcom,mdss-pan-physical-height-dimension = <142>;
 		qcom,mdss-night-brightness = <9 27 44 62>;
-		/* qcom,dispparam-enabled; */
+		qcom,dispparam-enabled;
 		qcom,mdss-panel-on-dimming-delay = <120>;
 		qcom,mdss-dsi-dispparam-dimmingon-command = [39 01 00 00 01 00 02 53 2C];
 		qcom,mdss-dsi-dispparam-ceon-command = [
