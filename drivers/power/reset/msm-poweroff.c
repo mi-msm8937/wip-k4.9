@@ -165,6 +165,7 @@ static bool get_dload_mode(void)
 {
 	return dload_mode_enabled;
 }
+/*
 static void enable_emergency_dload_mode(void)
 {
 	int ret;
@@ -188,6 +189,7 @@ static void enable_emergency_dload_mode(void)
 	if (ret)
 		pr_err("Failed to set secure EDLOAD mode: %d\n", ret);
 }
+*/
 static int dload_set(const char *val, const struct kernel_param *kp)
 {
 	int ret;
@@ -377,7 +379,7 @@ static void msm_restart_prepare(const char *cmd)
 					     restart_reason);
 			}
 		} else if (!strncmp(cmd, "edl", 3)) {
-			enable_emergency_dload_mode();
+			//enable_emergency_dload_mode();
 		} else if (!strcmp(cmd, "other")) {
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_OTHER);
