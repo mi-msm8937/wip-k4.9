@@ -117,10 +117,8 @@ extern void time_init(void);
 /* Default late time init is NULL. archs can override this later. */
 void (*__initdata late_time_init)(void);
 
-/* Patched command line */
-char boot_command_line[1024];
 /* Untouched command line saved by arch-specific code. */
-char __initdata untouched_boot_command_line[COMMAND_LINE_SIZE];
+char __initdata boot_command_line[COMMAND_LINE_SIZE];
 /* Untouched saved command line (eg. for /proc) */
 char *saved_command_line;
 /* Command line for parameter parsing */
@@ -364,11 +362,11 @@ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
 static void __init setup_command_line(char *command_line)
 {
 	saved_command_line =
-		memblock_virt_alloc(sizeof(boot_command_line), 0);
+		memblock_virt_alloc(strlen(boot_command_line) + 1, 0);
 	initcall_command_line =
-		memblock_virt_alloc(sizeof(boot_command_line), 0);
-	static_command_line = memblock_virt_alloc(sizeof(boot_command_line), 0);
-	strcpy(saved_command_line, untouched_boot_command_line);
+		memblock_virt_alloc(strlen(boot_command_line) + 1, 0);
+	static_command_line = memblock_virt_alloc(strlen(command_line) + 1, 0);
+	strcpy(saved_command_line, boot_command_line);
 	strcpy(static_command_line, command_line);
 }
 
@@ -386,8 +384,6 @@ static __initdata DECLARE_COMPLETION(kthreadd_done);
 static noinline void __ref rest_init(void)
 {
 	int pid;
-
-	strcpy(boot_command_line, untouched_boot_command_line);
 
 	rcu_scheduler_starting();
 	/*
@@ -484,41 +480,6 @@ static void __init mm_init(void)
 	kaiser_init();
 }
 
-static void __init patch_cmdline_remove_flag(char *cmd, const char *flag)
-{
-	char *offset_addr = cmd;
-	offset_addr = strstr(cmd, flag);
-	if (offset_addr) {
-		size_t i, len, offset;
-
-		len = strlen(cmd);
-		offset = offset_addr - cmd;
-
-		for (i = 1; i < (len - offset); i++) {
-			if (cmd[offset + i] == ' ')
-				break;
-		}
-
-		memmove(offset_addr, &cmd[offset + i + 1], len - i - offset);
-	} else {
-		printk("%s: Unable to find flag \"%s\"\n", __func__, flag);
-	}
-}
-
-static void __init patch_cmdline()
-{
-	printk("%s: Unpatched cmdline: \"%s\"\n", __func__, boot_command_line);
-
-	/* Android System-As-Root */
-	patch_cmdline_remove_flag(boot_command_line, "root=PARTUUID=");
-	patch_cmdline_remove_flag(boot_command_line, "rootwait");
-	/* This flag is skip_initramfs, Omit the last 2 characters to avoid getting patched by Magisk */
-	patch_cmdline_remove_flag(boot_command_line, "skip_initram");
-
-	printk("%s: Patched cmdline:   \"%s\"\n", __func__, boot_command_line);
-	strcpy(saved_command_line, boot_command_line);
-}
-
 asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
@@ -549,7 +510,6 @@ asmlinkage __visible void __init start_kernel(void)
 	setup_arch(&command_line);
 	mm_init_cpumask(&init_mm);
 	setup_command_line(command_line);
-	patch_cmdline();
 	setup_nr_cpu_ids();
 	setup_per_cpu_areas();
 	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
