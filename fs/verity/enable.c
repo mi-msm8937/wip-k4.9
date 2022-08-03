@@ -10,7 +10,6 @@
 #include <crypto/hash.h>
 #include <linux/mount.h>
 #include <linux/pagemap.h>
-#include <linux/sched/signal.h>
 #include <linux/uaccess.h>
 
 static int build_merkle_tree_level(struct inode *inode, unsigned int level,

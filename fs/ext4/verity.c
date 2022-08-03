@@ -144,9 +144,7 @@ static int ext4_begin_enable_verity(struct file *filp)
 	 * ext4 uses the last allocated block to find the verity descriptor, so
 	 * we must remove any other blocks past EOF which might confuse things.
 	 */
-	err = ext4_truncate(inode);
-	if (err)
-		return err;
+	ext4_truncate(inode);
 
 	handle = ext4_journal_start(inode, EXT4_HT_INODE, credits);
 	if (IS_ERR(handle))
