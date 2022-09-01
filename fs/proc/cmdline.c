@@ -61,14 +61,6 @@ static void patch_flag_remove_flag(char *cmd, const char *flag)
 	}
 }
 
-static void patch_safetynet_flags(char *cmd)
-{
-	patch_flag_set_val(cmd, "androidboot.flash.locked=", "1");
-	patch_flag_set_val(cmd, "androidboot.verifiedbootstate=", "green");
-	patch_flag_set_val(cmd, "androidboot.veritymode=", "enforcing");
-	patch_flag_set_val(cmd, "androidboot.vbmeta.device_state=", "locked");
-}
-
 static void patch_sar_flags(char *cmd)
 {
 	patch_flag_remove_flag(cmd, "root=PARTUUID=");
@@ -80,12 +72,6 @@ static void patch_sar_flags(char *cmd)
 static int __init proc_cmdline_init(void)
 {
 	strcpy(new_command_line, saved_command_line);
-
-	/*
-	 * Patch various flags from command line seen by userspace in order to
-	 * pass SafetyNet checks.
-	 */
-	patch_safetynet_flags(new_command_line);
 
 	patch_sar_flags(new_command_line);
 
