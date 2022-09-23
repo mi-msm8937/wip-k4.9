@@ -278,46 +278,6 @@ static enum scm_interface_version {
 /* This will be set to specify SMC32 or SMC64 */
 static u32 scm_version_mask;
 
-static bool is_scm_armv8(void)
-{
-	int ret;
-	u64 ret1, x0;
-
-	if (likely(scm_version != SCM_UNKNOWN))
-		return (scm_version == SCM_ARMV8_32) ||
-			(scm_version == SCM_ARMV8_64);
-	/*
-	 * This is a one time check that runs on the first ever
-	 * invocation of is_scm_armv8. We might be called in atomic
-	 * context so no mutexes etc. Also, we can't use the scm_call2
-	 * or scm_call2_APIs directly since they depend on this init.
-	 */
-
-	/* First try a SMC64 call */
-	scm_version = SCM_ARMV8_64;
-	ret1 = 0;
-	x0 = SCM_SIP_FNID(SCM_SVC_INFO, IS_CALL_AVAIL_CMD) | SMC_ATOMIC_MASK;
-	ret = __scm_call_armv8_64(x0 | SMC64_MASK, SCM_ARGS(1), x0, 0, 0, 0,
-				  &ret1, NULL, NULL);
-	if (ret || !ret1) {
-		/* Try SMC32 call */
-		ret1 = 0;
-		ret = __scm_call_armv8_32(x0, SCM_ARGS(1), x0, 0, 0, 0,
-					  &ret1, NULL, NULL);
-		if (ret || !ret1)
-			scm_version = SCM_LEGACY;
-		else
-			scm_version = SCM_ARMV8_32;
-	} else
-		scm_version_mask = SMC64_MASK;
-
-	pr_debug("scm_call: scm version is %x, mask is %x\n", scm_version,
-		  scm_version_mask);
-
-	return (scm_version == SCM_ARMV8_32) ||
-			(scm_version == SCM_ARMV8_64);
-}
-
 /*
  * If there are more than N_REGISTER_ARGS, allocate a buffer and place
  * the additional arguments in it. The extra argument buffer will be
