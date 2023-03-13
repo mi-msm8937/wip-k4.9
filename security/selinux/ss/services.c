@@ -2099,8 +2099,8 @@ static void security_load_policycaps(struct selinux_state *state)
 	for (i = 0; i < ARRAY_SIZE(state->policycap); i++)
 		state->policycap[i] = ebitmap_get_bit(&p->policycaps, i);
 
-	selinux_android_netlink_route = policydb.android_netlink_route;
-	selinux_android_netlink_getneigh = policydb.android_netlink_getneigh;
+	selinux_android_netlink_route = p->android_netlink_route;
+	selinux_android_netlink_getneigh = p->android_netlink_getneigh;
 	selinux_nlmsg_init();
 
 	for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
