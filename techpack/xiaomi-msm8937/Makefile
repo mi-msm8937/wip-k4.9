@@ -8,6 +8,8 @@ USERINCLUDE     += \
 LINUXINCLUDE    += \
                 -I$(srctree)/techpack/xiaomi-msm8937/include/uapi \
                 -I$(srctree)/techpack/xiaomi-msm8937/include
+
+obj-$(CONFIG_MACH_XIAOMI_MSM8937) += mach/
 else
 ccflags-y := -Wno-unused-function
 obj-y := stub.o
