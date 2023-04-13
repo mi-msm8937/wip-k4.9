@@ -14,6 +14,7 @@
 
 &led_flash0 {
 	qcom,flash-source = <&pmi8950_flash0 &pmi8950_flash1>;
+	qcom,torch-source = <&pmi8950_torch0>; // FIXME
 };
 
 &cci {
